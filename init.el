@@ -21,8 +21,8 @@
 (require 'python-config)
 (require 'web-config)
 
-(require 'gruvbox-dark-medium-theme)
-(load-theme 'gruvbox-dark-medium)
+(require 'sourcerer-theme)
+(load-theme 'sourcerer)
 
 
 ;; Keybindings
