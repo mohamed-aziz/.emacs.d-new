@@ -18,6 +18,19 @@
 ;; prettify mode
 (global-prettify-symbols-mode 1)
 
+(push '("!="      . ?≠) prettify-symbols-alist)
+(push '("<="      . ?≤) prettify-symbols-alist)
+(push '(">="      . ?≥) prettify-symbols-alist)
+(push '("alpha"   . ?α) prettify-symbols-alist)
+(push '("beta"    . ?β) prettify-symbols-alist)
+(push '("gamma"   . ?γ) prettify-symbols-alist)
+(push '("delta"   . ?Δ) prettify-symbols-alist)
+(push '("epsilon" . ?ε) prettify-symbols-alist)
+(push '("theta"   . ?θ) prettify-symbols-alist)
+(push '("pi"      . ?π) prettify-symbols-alist)
+(push '("sqrt"    . ?√) prettify-symbols-alist)
+
+(setq prettify-symbols-unprettify-at-point t)
 
 ;; fuck with Vi(m) users
 (defconst wq "This is not vi retard!  Use C-x C-c instead.")
