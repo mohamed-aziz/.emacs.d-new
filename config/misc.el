@@ -17,18 +17,19 @@
 
 ;; prettify mode
 (global-prettify-symbols-mode 1)
-
-(push '("!="      . ?≠) prettify-symbols-alist)
-(push '("<="      . ?≤) prettify-symbols-alist)
-(push '(">="      . ?≥) prettify-symbols-alist)
-(push '("alpha"   . ?α) prettify-symbols-alist)
-(push '("beta"    . ?β) prettify-symbols-alist)
-(push '("gamma"   . ?γ) prettify-symbols-alist)
-(push '("delta"   . ?Δ) prettify-symbols-alist)
-(push '("epsilon" . ?ε) prettify-symbols-alist)
-(push '("theta"   . ?θ) prettify-symbols-alist)
-(push '("pi"      . ?π) prettify-symbols-alist)
-(push '("sqrt"    . ?√) prettify-symbols-alist)
+(add-hook 'find-file-hook
+	  (lambda ()
+	    (push '("!="      . ?≠) prettify-symbols-alist)
+	    (push '("<="      . ?≤) prettify-symbols-alist)
+	    (push '(">="      . ?≥) prettify-symbols-alist)
+	    (push '("alpha"   . ?α) prettify-symbols-alist)
+	    (push '("beta"    . ?β) prettify-symbols-alist)
+	    (push '("gamma"   . ?γ) prettify-symbols-alist)
+	    (push '("delta"   . ?Δ) prettify-symbols-alist)
+	    (push '("epsilon" . ?ε) prettify-symbols-alist)
+	    (push '("theta"   . ?θ) prettify-symbols-alist)
+	    (push '("pi"      . ?π) prettify-symbols-alist)
+	    (push '("sqrt"    . ?√) prettify-symbols-alist)))
 
 (setq prettify-symbols-unprettify-at-point t)
 
@@ -58,5 +59,11 @@
 (global-set-key (kbd "C-c +") 'increment-number-at-point)
 (global-set-key (kbd "C-c -") 'decrement-number-at-point)
 
+;; easily resize
+
+(require 'resize-window)
+(global-set-key (kbd "C-c ;") 'resize-window)
+
+(winner-mode 1)
 
 (provide 'misc)
