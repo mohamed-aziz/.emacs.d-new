@@ -36,5 +36,11 @@
 ;; to avoid delay in terminal
 (setq-default xterm-query-timeout nil)
 
+;; when using nowindow
+(define-key input-decode-map "\e[1;2A" [S-up])
+(define-key input-decode-map "\e[1;2B" [S-down])
+
+;; let the terminal decide the background color
+(custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
 
 (provide 'init)
