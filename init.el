@@ -20,9 +20,12 @@
 (require 'magit)
 (require 'python-config)
 (require 'web-config)
+(require 'xclip)
 
 (require 'sourcerer-theme)
 (load-theme 'sourcerer)
+(xclip-mode 1)
+
 
 
 ;; Keybindings
