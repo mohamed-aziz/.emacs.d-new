@@ -22,10 +22,11 @@
 (require 'web-config)
 (require 'xclip)
 
-(require 'sourcerer-theme)
-(load-theme 'sourcerer)
 (xclip-mode 1)
 
+(add-hook 'after-init-hook (lambda ()
+			     (require 'sourcerer-theme)
+			     (load-theme 'sourcerer)))
 
 
 ;; Keybindings
