@@ -10,6 +10,14 @@
 (require 'emms-player-mpv)
 (add-to-list 'emms-player-list 'emms-player-mpv)
 
+(require 'emms-info-libtag)
+(setq emms-info-functions '(emms-info-libtag))
+;;; below is a nice key command for toggling the music browser
+(autoload 'emms-smart-browse "emms-browser.el" "Browse with EMMS" t)
+
+(global-set-key [(f7)] 'emms-smart-browse) 
+
+
 (setq emms-source-file-default-directory "~/Music/")
 
 (provide 'music)
