@@ -1,5 +1,11 @@
 (add-to-list 'load-path
 	     (expand-file-name "config" user-emacs-directory))
+(add-to-list 'load-path
+	     (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
+
+(setenv "PATH" (concat (getenv "PATH") ":/home/mo/.local/bin"))
+(setq exec-path (append exec-path '("/home/mo/.local/bin")))
+
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
 (when (file-exists-p custom-file)
@@ -20,6 +26,7 @@
 (require 'magit)
 (require 'python-config)
 (require 'web-config)
+(require 'org-config)
 (require 'xclip)
 
 (xclip-mode 1)
