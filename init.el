@@ -27,6 +27,7 @@
 (require 'python-config)
 (require 'web-config)
 (require 'org-config)
+(require 'pomodoro-config)
 (require 'xclip)
 
 (xclip-mode 1)
