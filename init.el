@@ -29,6 +29,8 @@
 (require 'org-config)
 (require 'pomodoro-config)
 (require 'xclip)
+(require 'mail-config)
+
 
 (xclip-mode 1)
 
