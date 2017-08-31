@@ -1,6 +1,8 @@
 (tool-bar-mode   0)
 (menu-bar-mode   0)
-(scroll-bar-mode 0)
+
+(when (> emacs-major-version 24)
+  (scroll-bar-mode 0))
 
 (global-set-key (kbd "S-<up>") 'windmove-up)
 (global-set-key (kbd "S-<down>") 'windmove-down)
