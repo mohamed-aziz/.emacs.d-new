@@ -17,7 +17,7 @@
 
 ;; prettify mode
 (global-prettify-symbols-mode 1)
-(add-hook 'find-file-hook
+(add-hook 'prog-mode-hook
 	  (lambda ()
 	    (push '("!="      . ?≠) prettify-symbols-alist)
 	    (push '("<="      . ?≤) prettify-symbols-alist)
@@ -124,5 +124,10 @@
   kept-new-versions 20   ; how many of the newest versions to keep
   kept-old-versions 5    ; and how many of the old
   )
+
+;; set default web browser
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "icecat")
+
 
 (provide 'misc)

@@ -2,6 +2,7 @@
 	     (expand-file-name "config" user-emacs-directory))
 (add-to-list 'load-path
 	     (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
+(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 
 (setenv "PATH" (concat (getenv "PATH") ":/home/mo/.local/bin"))
 (setq exec-path (append exec-path '("/home/mo/.local/bin")))
@@ -30,6 +31,7 @@
 (require 'pomodoro-config)
 (require 'xclip)
 (require 'mail-config)
+(require 'erc-config)
 
 
 (xclip-mode 1)
@@ -37,7 +39,6 @@
 (add-hook 'after-init-hook (lambda ()
 			     (require 'sourcerer-theme)
 			     (load-theme 'sourcerer)))
-
 
 ;; Keybindings
 (global-set-key (kbd "C-x g") 'magit-status)
@@ -54,3 +55,4 @@
 (custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
 
 (provide 'init)
+(put 'magit-clean 'disabled nil)

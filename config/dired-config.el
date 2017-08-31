@@ -1,8 +1,12 @@
 (require 'dired)
+(require 'dired-fixups)
+(require 'dired-async)
+
 (setq dired-dwim-target t)
 
 (define-key dired-mode-map "b" 'emms-play-dired)
 
+(setq dired-listing-switches "-lah")
 
 ;; from https://stackoverflow.com/questions/4448055/download-a-file-with-emacs-lisp
 (require 'url)
@@ -23,8 +27,10 @@
 				download-dir
 				"~/Downloads"
                             (or download-name
-                                (car (last (split-string url "/" t))))))))))
+                                (car (last (split-string url "/" t)))))))))))
 
+
+(dired-async-mode 1)
 
 
 (provide 'dired-config)

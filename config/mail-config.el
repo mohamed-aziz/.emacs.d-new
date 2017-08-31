@@ -3,9 +3,9 @@
 ;; default
 (setq mu4e-maildir (expand-file-name "~/Maildir"))
 
-(setq mu4e-drafts-folder "/[Gmail].Drafts")
-(setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-(setq mu4e-trash-folder  "/[Gmail].Trash")
+(setq mu4e-drafts-folder "/[Gmail].Brouillons")
+(setq mu4e-sent-folder   "/[Gmail].Messages envoy&AOk-s")
+(setq mu4e-trash-folder  "/[Gmail].Corbeille")
 
 ;; don't save message to Sent Messages, GMail/IMAP will take care of this
 (setq mu4e-sent-messages-behavior 'delete)
@@ -13,8 +13,8 @@
 ;; setup some handy shortcuts
 (setq mu4e-maildir-shortcuts
       '(("/INBOX"             . ?i)
-        ("/[Gmail].Sent Mail" . ?s)
-        ("/[Gmail].Trash"     . ?t)))
+        ("/[Gmail].Messages envoy&AOk-s" . ?s)
+        ("/[Gmail].Corbeille"     . ?t)))
 
 ;; allow for updating mail using 'U' in the main view:
 (setq mu4e-get-mail-command "offlineimap")
