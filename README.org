@@ -36,7 +36,13 @@
      
 **** MPV
      For playing music I use the excellent MPV, I just disable music covers by default I have
-     this in my mpv.conf src_sh{audio-display=no}
+     this in my mpv.conf:
+
+     #+NAME:
+     #+BEGIN_SRC sh 
+       audio-display=no
+     #+END_SRC
+
 
 *** Other
 
