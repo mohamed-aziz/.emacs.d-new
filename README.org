@@ -1,0 +1,46 @@
+
+
+** Contents
+
+*** Email
+    This works with mu4e and smtpmail (builtin), it can also work with multiple mail
+    email accounts using my/mu4e-set-account function (bound to C-x c), it also needs
+    offlineimap for downloading mails using the imap protocol.
+
+    Side note: I encrypt my .authinfo.gpg without the symmetric option (without a passphrase)
+    Emacs decrypts files encrypted with gpg automatically.
+    
+*** IRC
+
+    Nothing special I just use ERC with logging enabled.
+
+*** Programming
+
+    I mainly do python, vuejs, php and C, so I have elpy, web-mode and ggtags.
+    I also aggressively use gud for debugging and the compile function.
+
+*** File managment
+
+    I use dired as my file manager (I absolutely love it), so the most important things are 
+    having John's wiegley excellent dired-async (provided as a POC to async.el) and I also activate 
+    dwim which is essantial for moving big files inside Emacs.
+
+*** Music
+
+**** EMMS
+     I use the feature rich EMMS and mpv, some people like to integrate EMMS inside of dired
+     buffers, as far as I know that's how the programmer of EMMS uses it, I use this technique
+     for playing movies or other videos but for music I use emms-browser, I can compose my
+     playlist from there and then play it.
+     
+     
+**** MPV
+     For playing music I use the excellent MPV, I just disable music covers by default I have
+     this in my mpv.conf
+     
+     audio-display=no
+
+*** Other
+
+    I use the default org (for writing todo lists and tracking my movies watch list), I also
+    use diary with the defaults settings.
