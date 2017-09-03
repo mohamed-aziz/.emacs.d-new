@@ -1,6 +1,7 @@
 ;; Adapted from https://www.djcbsoftware.nl/code/mu/mu4e/Multiple-accounts.html
 
 (defvar my/mu4e-last-read-account "")
+(defvar my/mu4e-current-account nil)
 
 (defun my/mu4e-set-account ()
   "Set the account for composing a message."
@@ -20,13 +21,21 @@
          (account-vars (cdr (assoc account my/mu4e-account-alist))))
     (progn
       (setq my/mu4e-last-read-account account)
+      (setq my/mu4e-current-account account-vars)
       (if account-vars
 	  (mapc #'(lambda (var)
 		    (set (car var) (cadr var)))
 		account-vars)
 	(error "No email account found")))))
 
-;; (add-hook 'mu4e-compose-pre-hook 'my/mu4e-set-account)
+(defun my/mu4e-execute-account-vars ()
+  "docstring"
+  (when my/mu4e-current-account
+      (mapc #'(lambda (var)
+		(set (car var) (cadr var)))
+	    my/mu4e-current-account)))
+
+(add-hook 'mu4e-compose-mode-hook 'my/mu4e-execute-account-vars)
 
 (defun my/compose-new ()
   "Compose new email"
