@@ -31,9 +31,13 @@
 (defun my/mu4e-execute-account-vars ()
   "docstring"
   (when my/mu4e-current-account
+    (progn
       (mapc #'(lambda (var)
 		(set (car var) (cadr var)))
-	    my/mu4e-current-account)))
+	    my/mu4e-current-account))
+    (when (string= "*draft*"  (buffer-name))
+      (when message-signature
+	(message-insert-signature)))))
 
 (add-hook 'mu4e-compose-mode-hook 'my/mu4e-execute-account-vars)
 

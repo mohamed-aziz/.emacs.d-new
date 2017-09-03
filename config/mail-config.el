@@ -19,7 +19,7 @@
      (smtpmail-smtp-server  "smtp.gmail.com")
      (smtpmail-smtp-service  587)
      (smtpmail-starttls-credentials  '(("smtp.gmail.com" 587 nil nil)))
-     (message-signature  (concat "Mohamed Aziz Knani\n" "http://www.aziz.tn/\n")))
+     (message-signature "Mohamed Aziz Knani\nhttp://www.aziz.tn/\n"))
     ("COCK"
      (mu4e-sent-folder  "/Cock/SENT")
      (mu4e-trash-folder  "/Cock/Trash")
@@ -28,7 +28,7 @@
      (smtpmail-default-smtp-server  "mail.cock.li")
      (smtpmail-smtp-server  "mail.cock.li")
      (user-full-name   "mak")
-     (message-signature  (concat "mak.\n" "http://www.aziz.tn/\n"))
+     (message-signature  "mak.\nhttp://www.aziz.tn/\n")
      (smtpmail-smtp-service  587)
      (smtpmail-starttls-credentials '(("mail.cock.li" 587 nil nil))))))
 
