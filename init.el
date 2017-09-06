@@ -4,7 +4,7 @@
 	     (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 
-(setenv "PATH" (concat (getenv "PATH") ":/home/mo/.local/bin"))
+(setenv "PATH" (concat (getenv "PATH") (concat ":" (expand-file-name "~/.local/bin"))))
 (setq exec-path (append exec-path '("/home/mo/.local/bin")))
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -32,13 +32,13 @@
 (require 'xclip)
 (require 'mail-config)
 (require 'erc-config)
-
+(require 'engine-search)
 
 (xclip-mode 1)
 
 (add-hook 'after-init-hook (lambda ()
-			     (require 'sourcerer-theme)
-			     (load-theme 'sourcerer)))
+			     (require 'cyberpunk-theme)
+			     (load-theme 'cyberpunk)))
 
 ;; Keybindings
 (global-set-key (kbd "C-x g") 'magit-status)
