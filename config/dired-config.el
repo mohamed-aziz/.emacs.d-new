@@ -5,6 +5,8 @@
 (setq dired-dwim-target t)
 
 (define-key dired-mode-map "b" 'emms-play-dired)
+(define-key dired-mode-map (kbd "C-c f") 'find-name-dired)
+
 
 (setq dired-listing-switches "-lah")
 
