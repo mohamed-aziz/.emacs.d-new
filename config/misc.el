@@ -179,4 +179,7 @@ buffer is not visiting a file."
 
 (global-set-key (kbd "C-x C-r") 'sudo-edit)
 
+;; enable global company mode
+(global-company-mode 1)
+
 (provide 'misc)
