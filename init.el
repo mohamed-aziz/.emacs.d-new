@@ -33,6 +33,7 @@
 (require 'mail-config)
 (require 'erc-config)
 (require 'engine-search)
+(require 'elisp-config)
 
 (xclip-mode 1)
 
