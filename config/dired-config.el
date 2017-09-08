@@ -30,6 +30,23 @@
                                 (car (last (split-string url "/" t)))))))))))
 
 
+;; some functions to "normalize" filenames
+(defun normalize-name (filename)
+  "Replace space with underscore"
+  (replace-regexp-in-string " " "_" filename))
+
+(defun dired-do-rename-file ()
+  "Call dired-rename-file"
+  (let ((file (dired-get-filename nil t)))
+    (dired-rename-file file (normalize-name file) nil)))
+
+(defun dired-normalize-name (&optional arg)
+  "Normalize files from dired"
+  (interactive "P")
+  (dired-map-over-marks-check (function dired-do-rename-file) arg 'normalize t)
+  (revert-buffer))
+
+
 (dired-async-mode 1)
 
 
