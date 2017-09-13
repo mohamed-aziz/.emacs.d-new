@@ -8,6 +8,8 @@
 (define-key dired-mode-map (kbd "C-c f") 'find-name-dired)
 (define-key dired-mode-map (kbd "C-c o") 'crux-open-with)
 
+(add-hook 'dired-mode-hook '(lambda ()
+			      (dired-hide-details-mode)))
 
 (setq dired-listing-switches "-lah")
 
