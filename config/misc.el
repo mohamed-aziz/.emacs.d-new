@@ -41,7 +41,7 @@
 (defconst q! "This is EMACS not vi retard!  Use C-x C-c instead.")
 (defconst wq! "This is EMACS not vi retard!  Use C-x C-c instead.")
 
-
+;; ido stuff
 (require 'flx-ido)
 (require 'ido-vertical-mode)
 (ido-mode 1)
@@ -117,6 +117,7 @@
 (require 'projectile)
 
 (projectile-mode 1)
+(setq projectile-use-git-grep 1)
 
 ;; Save backup files
 (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
@@ -180,6 +181,39 @@ buffer is not visiting a file."
 (global-set-key (kbd "C-x C-r") 'sudo-edit)
 
 ;; enable global company mode
+(require 'company)
 (global-company-mode 1)
 
+;; flycheck
+(require 'flycheck)
+(global-flycheck-mode 1)
+
+
+;; magit stuff
+(require 'magit)
+(require 'magithub)
+(global-set-key (kbd "C-x g") 'magit-status)
+(magithub-feature-autoinject t)
+(put 'magit-clean 'disabled nil)OA
+
+(global-set-key (kbd "<f12>") 'menu-bar-mode)
+
+;;; Terminal emulator stuff
+;; when using nowindow
+(define-key input-decode-map "\e[1;2A" [S-up])
+(define-key input-decode-map "\e[1;2B" [S-down])
+;; xclip
+(require 'xclip)
+(xclip-mode 1)
+;; let the terminal decide the background color
+(custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
+;; to avoid delay in terminal
+(setq-default xterm-query-timeout nil)
+
+;; startup
+(setq initial-scratch-message ";; ╔═╗┌─┐┬─┐┌─┐┌┬┐┌─┐┬ ┬\n;; ╚═╗│  ├┬┘├─┤ │ │  ├─┤\n;; ╚═╝└─┘┴└─┴ ┴ ┴ └─┘┴ ┴\n\n")
+(setq inhibit-startup-screen t)
+
 (provide 'misc)
+;;; misc.el ends here
+

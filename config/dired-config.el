@@ -42,7 +42,8 @@
 
 (defun dired-do-rename-file ()
   "Call dired-rename-file"
-  (let ((file (dired-get-filename nil t)))
+  (let ((file (file-name-base (dired-get-filename nil t))))
+    (print file)
     (dired-rename-file file (normalize-name file) nil)))
 
 (defun dired-normalize-name (&optional arg)

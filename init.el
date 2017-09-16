@@ -32,36 +32,20 @@
 (require 'misc)
 (require 'dired-config)
 (require 'music)
-(require 'magit)
 (require 'python-config)
 (require 'web-config)
 (require 'org-config)
 (require 'pomodoro-config)
-(require 'xclip)
 (require 'mail-config)
 (require 'erc-config)
 (require 'engine-search)
 (require 'elisp-config)
 
-(xclip-mode 1)
-
+;; load theme
 (add-hook 'after-init-hook (lambda ()
 			     (require 'cyberpunk-theme)
 			     (load-theme 'cyberpunk)))
 
-;; Keybindings
-(global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key (kbd "<f12>") 'menu-bar-mode)
-
-;; to avoid delay in terminal
-(setq-default xterm-query-timeout nil)
-
-;; when using nowindow
-(define-key input-decode-map "\e[1;2A" [S-up])
-(define-key input-decode-map "\e[1;2B" [S-down])
-
-;; let the terminal decide the background color
-(custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
 
 (provide 'init)
-(put 'magit-clean 'disabled nil)
+;;; init.el ends here
