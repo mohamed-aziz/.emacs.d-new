@@ -194,7 +194,7 @@ buffer is not visiting a file."
 (require 'magithub)
 (global-set-key (kbd "C-x g") 'magit-status)
 (magithub-feature-autoinject t)
-(put 'magit-clean 'disabled nil)OA
+(put 'magit-clean 'disabled nil)
 
 (global-set-key (kbd "<f12>") 'menu-bar-mode)
 
