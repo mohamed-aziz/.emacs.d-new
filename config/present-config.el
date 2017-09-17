@@ -6,3 +6,5 @@
 				(define-key zpresent-mode-map
 				  (kbd "<down>") #'scroll-up)))
 
+
+(provide 'present-config)
