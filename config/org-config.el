@@ -22,4 +22,9 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (define-key global-map "\C-cc" 'org-capture)
 
+(require 'org-trello)
+
+(setq org-trello-files
+      '("/home/mo/work.org"))
+
 (provide 'org-config)
