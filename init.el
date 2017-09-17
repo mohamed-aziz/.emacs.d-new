@@ -27,6 +27,21 @@
 (when (< emacs-major-version 24)
   (add-to-list 'package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 				   ("org" . "https://orgmode.org/elpa/"))))
+
+(setq tls-program "gnutls-cli")
+
+(let ((trustfile
+       (replace-regexp-in-string
+        "\\\\" "/"
+        (replace-regexp-in-string
+         "\n" ""
+         (shell-command-to-string "python -m certifi")))))
+  (setq tls-program
+        (list
+         (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                 (if (eq window-system 'w32) ".exe" "") trustfile))))
+
+
 (package-initialize)
 
 (require 'misc)
