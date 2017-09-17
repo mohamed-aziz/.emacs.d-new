@@ -206,13 +206,18 @@ buffer is not visiting a file."
 (require 'xclip)
 (xclip-mode 1)
 ;; let the terminal decide the background color
-(custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
+;; (custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
 ;; to avoid delay in terminal
 (setq-default xterm-query-timeout nil)
 
 ;; startup
 (setq initial-scratch-message ";; ╔═╗┌─┐┬─┐┌─┐┌┬┐┌─┐┬ ┬\n;; ╚═╗│  ├┬┘├─┤ │ │  ├─┤\n;; ╚═╝└─┘┴└─┴ ┴ ┴ └─┘┴ ┴\n\n")
 (setq inhibit-startup-screen t)
+
+;; disable colors
+
+(add-hook 'prog-mode-hook (lambda ()
+			    (font-lock-mode 0)))
 
 (provide 'misc)
 ;;; misc.el ends here

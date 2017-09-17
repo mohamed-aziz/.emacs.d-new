@@ -50,15 +50,17 @@
  '(org-modules
    (quote
     (org-bbdb org-bibtex org-docview org-gnus org-habit org-info org-irc org-mhe org-rmail org-w3m)))
+ '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
  '(package-selected-packages
    (quote
-    (flycheck magithub xterm-color lua-mode nginx-mode cyberpunk-theme zenburn-theme async-await ggtags minimal-theme xclip web-mode web-beautify w3m vue-mode sourcerer-theme solarized-theme smooth-scrolling smex resize-window projectile prodigy pomodoro php-mode origami multi-term monochrome-theme markdown-mode magit js2-mode inkpot-theme ido-vertical-mode highlight-parentheses gruvbox-theme flx-ido expand-region emms-player-mpv emmet-mode elpy color-theme ace-jump-mode)))
+    (org-parser org-trello flycheck magithub xterm-color lua-mode nginx-mode cyberpunk-theme zenburn-theme async-await ggtags minimal-theme xclip web-mode web-beautify w3m vue-mode sourcerer-theme solarized-theme smooth-scrolling smex resize-window projectile prodigy pomodoro php-mode origami multi-term monochrome-theme markdown-mode magit js2-mode inkpot-theme ido-vertical-mode highlight-parentheses gruvbox-theme flx-ido expand-region emms-player-mpv emmet-mode elpy color-theme ace-jump-mode)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
  '(term-default-bg-color "")
  '(term-default-fg-color "#839496")
+ '(tls-checktrust t)
  '(vc-annotate-background nil)
  '(vc-annotate-background-mode nil)
  '(vc-annotate-color-map
@@ -95,10 +97,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 118 :width normal :foundry "Adobe" :family "SF Mono"))))
+ '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#d3d3d3" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 118 :width normal :family "SF Mono"))))
  '(dired-header ((t (:foreground "#fdf6e3"))))
  '(emms-playlist-selected-face ((t (:foreground "SteelBlue3" :underline t))))
  '(magit-blame-heading ((t (:foreground "black"))))
  '(mmm-default-submode-face ((t nil)))
  '(org-todo ((t (:foreground "#aa4450" :box (:line-width 2 :color "yellow" :style released-button)))))
- '(term ((t (:inherit default :foreground "#839496")))))
+ '(term ((t (:inherit default)))))
