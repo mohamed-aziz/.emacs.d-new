@@ -9,9 +9,6 @@
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
-(when (file-exists-p custom-file)
-  (load custom-file))
-
 (require 'package)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -55,6 +52,12 @@
 (require 'erc-config)
 (require 'engine-search)
 (require 'elisp-config)
+(require 'eshell-config)
+
+
+(when (file-exists-p custom-file)
+  (load custom-file))
+
 
 ;; load theme
 (add-hook 'after-init-hook (lambda ()
