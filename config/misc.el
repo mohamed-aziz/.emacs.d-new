@@ -70,8 +70,8 @@
   (interactive)
   (number-at-point '1-))
 
-(global-set-key (kbd "C-c +") 'increment-number-at-point)
-(global-set-key (kbd "C-c -") 'decrement-number-at-point)
+;; (global-set-key (kbd "C-c +") 'increment-number-at-point)
+;; (global-set-key (kbd "C-c -") 'decrement-number-at-point)
 
 ;; easily resize
 
@@ -206,7 +206,7 @@ buffer is not visiting a file."
 (require 'xclip)
 (xclip-mode 1)
 ;; let the terminal decide the background color
-;; (custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
+(custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
 ;; to avoid delay in terminal
 (setq-default xterm-query-timeout nil)
 
@@ -218,6 +218,29 @@ buffer is not visiting a file."
 
 (add-hook 'prog-mode-hook (lambda ()
 			    (font-lock-mode 0)))
+
+;; proced stuff
+(defun proced-settings ()
+  (proced-toggle-auto-update 1))
+
+(add-hook 'proced-mode-hook 'proced-settings)
+
+;; remove some modes from the mode line
+
+(defvar hidden-minor-modes
+
+  '(flycheck-mode
+    flyspell-mode
+    highlight-parentheses-mode
+    paredit-mode
+    auto-revert-mode))
+
+(defun purge-minor-modes ()
+  (interactive)
+  (dolist (x hidden-minor-modes nil)
+    (diminish x)))
+
+(add-hook 'after-change-major-mode-hook 'purge-minor-modes)
 
 (provide 'misc)
 ;;; misc.el ends here
