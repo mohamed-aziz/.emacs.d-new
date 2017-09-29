@@ -61,8 +61,8 @@
 
 ;; load theme
 (add-hook 'after-init-hook (lambda ()
-			     (require 'cyberpunk-theme)
-			     (load-theme 'cyberpunk)))
+			     (require 'yoshi-theme)
+			     (load-theme 'yoshi)))
 
 
 (provide 'init)
