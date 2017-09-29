@@ -53,7 +53,8 @@
 (require 'engine-search)
 (require 'elisp-config)
 (require 'eshell-config)
-
+(require 'present-config)
+(require 'perspective-config)
 
 (when (file-exists-p custom-file)
   (load custom-file))
