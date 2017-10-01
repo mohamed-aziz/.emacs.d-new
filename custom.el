@@ -42,18 +42,21 @@
  '(hl-fg-colors
    (quote
     ("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36")))
+ '(hl-paren-background-colors (quote ("#e8fce8" "#c1e7f8" "#f8e8e8")))
+ '(hl-paren-colors (quote ("#40883f" "#0287c8" "#b85c57")))
  '(magit-diff-use-overlays nil)
  '(nrepl-message-colors
    (quote
     ("#dc322f" "#cb4b16" "#b58900" "#546E00" "#B4C342" "#00629D" "#2aa198" "#d33682" "#6c71c4")))
  '(org-agenda-files (quote ("/home/mo/mylife.org" "/home/mo/movie.org")))
+ '(org-fontify-whole-heading-line t)
  '(org-modules
    (quote
     (org-bbdb org-bibtex org-docview org-gnus org-habit org-info org-irc org-mhe org-rmail org-w3m)))
  '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
  '(package-selected-packages
    (quote
-    (diminish "diminish-mode" "diminish" yoshi-theme perspective undo-tree which-key dired-du plan9-theme org-parser org-trello flycheck magithub xterm-color lua-mode nginx-mode cyberpunk-theme zenburn-theme async-await ggtags minimal-theme xclip web-mode web-beautify w3m vue-mode sourcerer-theme solarized-theme smooth-scrolling smex resize-window projectile prodigy pomodoro php-mode origami multi-term monochrome-theme markdown-mode magit js2-mode inkpot-theme ido-vertical-mode highlight-parentheses gruvbox-theme flx-ido expand-region emms-player-mpv emmet-mode elpy color-theme ace-jump-mode)))
+    (diminish "diminish-mode" "diminish" yoshi-theme perspective undo-tree which-key dired-du plan9-theme org-parser org-trello flycheck magithub xterm-color lua-mode nginx-mode cyberpunk-theme zenburn-theme async-await ggtags minimal-theme xclip web-mode web-beautify w3m sourcerer-theme solarized-theme smooth-scrolling smex resize-window projectile prodigy pomodoro php-mode origami multi-term monochrome-theme markdown-mode magit js2-mode inkpot-theme ido-vertical-mode highlight-parentheses gruvbox-theme flx-ido expand-region emms-player-mpv emmet-mode elpy color-theme ace-jump-mode)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
@@ -123,6 +126,10 @@
 	   (setq projectile-test-cmd
 		 (function test-project))))))
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
+ '(sml/active-background-color "#98ece8")
+ '(sml/active-foreground-color "#424242")
+ '(sml/inactive-background-color "#4fa8a8")
+ '(sml/inactive-foreground-color "#424242")
  '(term-default-bg-color "")
  '(term-default-fg-color "#839496")
  '(tls-checktrust t)
@@ -152,6 +159,8 @@
  '(weechat-color-list
    (quote
     (unspecified "#002b36" "#073642" "#990A1B" "#dc322f" "#546E00" "#859900" "#7B6000" "#b58900" "#00629D" "#268bd2" "#93115C" "#d33682" "#00736F" "#2aa198" "#839496" "#657b83")))
+ '(window-divider-default-right-width 1)
+ '(window-divider-mode t)
  '(xclip-mode t)
  '(xterm-color-names
    ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])

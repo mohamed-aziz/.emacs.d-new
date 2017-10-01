@@ -1,6 +1,8 @@
 (add-to-list 'load-path
 	     (expand-file-name "config" user-emacs-directory))
 (add-to-list 'load-path
+	     (expand-file-name "lisp" user-emacs-directory))
+(add-to-list 'load-path
 	     (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 

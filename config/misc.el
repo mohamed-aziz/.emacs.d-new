@@ -70,8 +70,12 @@
   (interactive)
   (number-at-point '1-))
 
-;; (global-set-key (kbd "C-c +") 'increment-number-at-point)
-;; (global-set-key (kbd "C-c -") 'decrement-number-at-point)
+(global-set-key (kbd "C-c +") 'increment-number-at-point)
+(global-set-key (kbd "C-c -") 'decrement-number-at-point)
+
+;; scale text using control-scroll
+(global-set-key [C-mouse-4] 'text-scale-increase)
+(global-set-key [C-mouse-5] 'text-scale-decrease)
 
 ;; easily resize
 
@@ -182,7 +186,8 @@ buffer is not visiting a file."
 
 ;; enable global company mode
 (require 'company)
-(global-company-mode 1)
+(add-hook 'after-init-hook 'global-company-mode)
+
 
 ;; flycheck
 (require 'flycheck)
