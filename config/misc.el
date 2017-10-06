@@ -219,10 +219,6 @@ buffer is not visiting a file."
 (setq initial-scratch-message ";; ╔═╗┌─┐┬─┐┌─┐┌┬┐┌─┐┬ ┬\n;; ╚═╗│  ├┬┘├─┤ │ │  ├─┤\n;; ╚═╝└─┘┴└─┴ ┴ ┴ └─┘┴ ┴\n\n")
 (setq inhibit-startup-screen t)
 
-;; disable colors
-
-(add-hook 'prog-mode-hook (lambda ()
-			    (font-lock-mode 0)))
 
 ;; proced stuff
 (defun proced-settings ()
@@ -246,6 +242,16 @@ buffer is not visiting a file."
     (diminish x)))
 
 (add-hook 'after-change-major-mode-hook 'purge-minor-modes)
+
+(require 'fill-column-indicator)
+(add-hook 'prog-mode-hook (lambda ()
+			    (fci-mode t)))
+
+;; ace-window
+
+(require 'ace-window)
+(global-set-key (kbd "C-x o") 'ace-window)
+
 
 (provide 'misc)
 ;;; misc.el ends here

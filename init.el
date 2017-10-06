@@ -41,6 +41,12 @@
                  (if (eq window-system 'w32) ".exe" "") trustfile))))
 
 
+;; load theme
+(add-hook 'after-init-hook (lambda ()
+			     (require 'tao-yin-theme)
+			     (load-theme 'tao-yin)))
+
+
 (package-initialize)
 
 (require 'misc)
@@ -60,12 +66,6 @@
 
 (when (file-exists-p custom-file)
   (load custom-file))
-
-
-;; load theme
-(add-hook 'after-init-hook (lambda ()
-			     (require 'yoshi-theme)
-			     (load-theme 'yoshi)))
 
 
 (provide 'init)
