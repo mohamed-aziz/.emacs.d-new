@@ -1,0 +1,1277 @@
+#+TITLE: My Emacs configuration file
+#+AUTHOR: Mohamed Aziz Knani
+#+BABEL: :cache yes
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://aziz.tn/orgmin.css"/>
+#+PROPERTY: header-args :tangle yes
+
+* Introduction
+
+  I like very much the idea of [[https://en.wikipedia.org/wiki/Literate_programming][literate programming]], it appears that Org-mode in Emacs shines in doing this, the code here is tangled into an emacs lisp file and loaded by emacs, I also weave it into an html file and post it on my website.
+  
+  What this will do is it will 
+
+   #+BEGIN_SRC emacs-lisp :tangle no
+     (require 'org)
+     (org-babel-tangle-file (concat user-emacs-directory "Knani.org"))
+     (load-file (concat user-emacs-directory "Knani.el"))
+     (byte-compile-file (concat user-emacs-directory "Knani.el"))
+   #+END_SRC
+  
+* Personal Information
+  #+BEGIN_SRC emacs-lisp
+    (setq user-full-name "Mohamed Aziz Knani"
+      user-mail-address "medazizknani@gmail.com")
+  #+END_SRC
+  
+* Package sources
+  
+  If the system has gnutls use ssl.
+
+  #+BEGIN_SRC emacs-lisp
+    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                        (not (gnutls-available-p))))
+           (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
+      (add-to-list 'package-archives (cons "melpa" url) t))
+
+    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                        (not (gnutls-available-p))))
+           (url (concat (if no-ssl "http" "https") "://orgmode.org/elpa/")))
+      (add-to-list 'package-archives (cons "org" url) t))
+
+  #+END_SRC
+
+  from [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][glyph's blog]] 
+
+  #+BEGIN_SRC emacs-lisp
+    (setq tls-program "gnutls-cli")
+
+    (let ((trustfile
+           (replace-regexp-in-string
+            "\\\\" "/"
+            (replace-regexp-in-string
+             "\n" ""
+             (shell-command-to-string "python -m certifi")))))
+      (setq tls-program
+            (list
+             (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                     (if (eq window-system 'w32) ".exe" "") trustfile))))
+
+  #+END_SRC
+
+
+  Initialize package
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp 
+    (require 'package)
+    (package-initialize)
+  #+END_SRC
+  
+* Load custom file
+
+  Load custom settings
+
+  #+BEGIN_SRC emacs-lisp 
+    (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+    (when (file-exists-p custom-file)
+      (load custom-file))
+
+  #+END_SRC
+
+* Look and feel
+  
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp
+    (tool-bar-mode   0)
+    (menu-bar-mode   0)
+
+    (when (> emacs-major-version 24)
+      (scroll-bar-mode 0))
+
+    (add-hook 'after-init-hook (lambda ()
+                                 (require 'tao-yin-theme)
+                                 (load-theme 'tao-yin)))
+  #+END_SRC
+* Add load paths
+
+  #+BEGIN_SRC emacs-lisp 
+    (add-to-list 'load-path
+                 (expand-file-name "lisp" user-emacs-directory))
+    (add-to-list 'load-path
+                 (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
+    (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+
+  #+END_SRC
+
+
+* Dired
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp 
+    (require 'dired)
+  #+END_SRC
+  
+** Keybindings
+
+   #+BEGIN_SRC emacs-lisp  
+     (define-key dired-mode-map "b" 'emms-play-dired)
+     (define-key dired-mode-map (kbd "C-c f") 'find-name-dired)
+     (define-key dired-mode-map (kbd "C-c o") 'crux-open-with)
+   #+END_SRC
+
+
+** Hide details
+   
+   This just hides details and just displays the files and directory names, this can be toggled using '('
+   
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'dired-mode-hook '(lambda ()
+                                 (dired-hide-details-mode)))
+
+   #+END_SRC
+
+** Switches
+   
+   Dired uses the ls program from GNU coreutils to get stuff, so you can do this
+
+   #+BEGIN_SRC emacs-lisp
+     (setq dired-listing-switches "-lah")
+   #+END_SRC
+
+
+** Download file
+
+   An interactive function to download files from [[https://stackoverflow.com/questions/4448055/download-a-file-with-emacs-lisp][here]]
+
+   #+BEGIN_SRC emacs-lisp  
+     (require 'url)
+
+     (defun download-file (&optional url download-dir download-name)
+       (interactive)
+       (let ((url (or url
+                      (read-string "Enter download URL: "))))
+         (let ((download-buffer (url-retrieve-synchronously url)))
+           (with-current-buffer download-buffer
+             ;; we may have to trim the http response
+             (goto-char (point-min))
+             (re-search-forward "^$" nil 'move)
+             (forward-char)
+             (delete-region (point-min) (point))
+             (write-file (concat (or default-directory
+                                     download-dir
+                                     "~/Downloads"
+                                     (or download-name
+                                         (car (last (split-string url "/" t)))))))))))
+
+   #+END_SRC
+
+
+** Normalize filenames
+   
+   I have some functions to normalize filenames, this has some bugs though
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (defun normalize-name (filename)
+       "Replace space with underscore"
+       (replace-regexp-in-string " " "_" filename))
+
+     (defun dired-do-rename-file ()
+       "Call dired-rename-file"
+       (let ((file (file-name-base (dired-get-filename nil t))))
+         (print file)
+         (dired-rename-file file (normalize-name file) nil)))
+
+     (defun dired-normalize-name (&optional arg)
+       "Normalize files from dired"
+       (interactive "P")
+       (dired-map-over-marks-check (function dired-do-rename-file) arg 'normalize t)
+       (revert-buffer))
+
+   #+END_SRC
+
+
+** Open with xdg-open
+   
+   This just lets me open files (or directories) with their default applications, it doesn't support windows though since I don't think that it has a facility to open files like that.
+   
+   This is stolen from bbastov crux package
+
+   #+BEGIN_SRC emacs-lisp
+     (defun crux-open-with (arg)
+       "Open visited file in default external program.
+     When in dired mode, open file under the cursor.
+     With a prefix ARG always prompt for command to use."
+       (interactive "P")
+       (let* ((current-file-name
+               (if (eq major-mode 'dired-mode)
+                   (dired-get-file-for-visit)
+                 buffer-file-name))
+              (open (pcase system-type
+                      (`darwin "open")
+                      ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
+              (program (if (or arg (not open))
+                           (read-shell-command "Open current file with: ")
+                         open)))
+         (call-process program nil 0 nil current-file-name)))
+
+   #+END_SRC
+
+
+** Dired async
+
+   I like using dired async
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'dired-async)
+     (dired-async-mode 1)
+   #+END_SRC
+
+
+** Some other stuff
+   
+   Some other stuff like dwim and dired-fixups
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'dired-fixups)
+     (setq dired-dwim-target t)
+
+   #+END_SRC
+
+* Elisp
+  
+  Enable show-paren and paredit for Emacs lisp code
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp 
+    (add-hook 'emacs-lisp-mode-hook (lambda ()
+                                      (show-paren-mode 1)
+                                      (paredit-mode 1)))
+
+  #+END_SRC
+
+
+* ERC
+
+  ERC is my default IRC client
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'erc)
+    (require 'erc-log)
+
+    ;; where to log
+    (setq erc-log-channels-directory "~/.erc/logs/")
+
+    (erc-truncate-mode +1)
+
+    (erc-spelling-mode 1)
+
+    ;; use unicode always
+    (setq erc-server-coding-system '(utf-8 . utf-8))
+
+
+    ;; channels to automatically join to
+    (setq erc-autojoin-channels-alist '(("freenode.net" "#python"
+                                         "#python-eve"
+                                         "#pocoo"
+                                         "#emacs"
+                                         "#gnu"
+                                         "#django"
+                                         "##programming")))
+
+
+
+  #+END_SRC
+
+* Eshell
+  
+** Pyvenv integration
+
+   Integration of pyvenv within Eshell
+
+   #+BEGIN_SRC emacs-lisp
+     (with-eval-after-load 'eshell
+       (defvar eshell-path-env)
+       (dolist (hook '(pyvenv-post-activate-hooks pyvenv-post-deactivate-hooks))
+         (add-hook hook                  ; eshell
+                   (lambda ()
+                     (let ((path-env (mapconcat (lambda (x) (or x "."))
+                                                exec-path
+                                                path-separator)))
+                       (setq-default eshell-path-env path-env)
+                       (dolist (buffer (buffer-list))
+                         (with-current-buffer buffer
+                           (and (derived-mode-p 'eshell-mode)
+                                (setq eshell-path-env path-env)))))))))
+
+   #+END_SRC
+     
+
+* Email
+
+  I use mu4e for Mail
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'mu4e)
+
+  #+END_SRC
+
+  set the mail directory
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+  (setq mu4e-maildir (expand-file-name "~/Maildir"))
+
+  #+END_SRC
+
+  set multiple accounts configurations
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (defvar my/mu4e-account-alist
+      '(("GMAIL"
+         (mu4e-drafts-folder  "/[Gmail].Brouillons")
+         (mu4e-sent-folder   "/[Gmail].Messages envoy&AOk-s")
+         (mu4e-trash-folder  "/[Gmail].Corbeille")
+         (user-mail-address  "medazizknani@gmail.com")
+         (user-full-name  "Mohamed Aziz Knani")
+         (smtpmail-default-smtp-server  "smtp.gmail.com")
+         (smtpmail-smtp-server  "smtp.gmail.com")
+         (smtpmail-smtp-service  587)
+         (smtpmail-starttls-credentials  '(("smtp.gmail.com" 587 nil nil)))
+         (message-signature "Mohamed Aziz Knani\nhttp://www.aziz.tn/\n"))
+        ("COCK"
+         (mu4e-sent-folder  "/Cock/SENT")
+         (mu4e-trash-folder  "/Cock/Trash")
+         (mu4e-drafts-folder  "/Cock/Drafts")
+         (user-mail-address  "mak@cock.li")
+         (smtpmail-default-smtp-server  "mail.cock.li")
+         (smtpmail-smtp-server  "mail.cock.li")
+         (user-full-name   "mak")
+         (message-signature  "mak.\nhttp://www.aziz.tn/\n")
+         (smtpmail-smtp-service  587)
+         (smtpmail-starttls-credentials '(("mail.cock.li" 587 nil nil))))))
+  #+END_SRC
+  
+  set the user email address
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp
+    (setq mu4e-user-mail-address-list
+          (mapcar (lambda (account) (cadr (assq 'user-mail-address account)))
+                  my/mu4e-account-alist))
+
+  #+END_SRC
+
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp 
+    (setq mu4e-sent-messages-behavior 'delete)
+
+  #+END_SRC
+
+  some handy shortcuts
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (setq mu4e-maildir-shortcuts
+          '(("/INBOX"             . ?i)
+            ("/[Gmail].Messages envoy&AOk-s" . ?s)
+            ("/[Gmail].Corbeille"     . ?t)
+            ("/Cock/INBOX" . ?c)))
+
+  #+END_SRC
+  
+
+  update mail using offlineimap
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (setq mu4e-get-mail-command "offlineimap -a MAKCock,Gmail")
+
+  #+END_SRC
+
+  
+  send mail using SMTP, anyways who the fuck uses IMAP to send mails.
+
+  Here authinfo.gpg is encrpyted using GNUpg, just make sure you don't use symmetric encrpytion so that you don't enter the password every single time (GNUpg caches the passwords using gpg-agent for some time I think)
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'smtpmail)
+
+    (setq message-send-mail-function 'smtpmail-send-it
+          starttls-use-gnutls t
+          smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
+          smtpmail-debug-info t)
+  #+END_SRC
+
+  
+** Offlineimap configuration
+   
+   This is not Emacs specific but I just wanted to throw it here
+
+   here is my .offlineimaprc
+
+   #+NAME: 
+   #+BEGIN_SRC c :tangle no
+       [general]
+     accounts = Gmail
+     maxconnections = 3
+     maxsyncaccounts = 1
+     pythonfile = ~/.offlineimap.py
+
+     [Account Gmail]
+     localrepository = Local
+     remoterepository = Remote
+
+     [Repository Local]
+     type = Maildir
+     localfolders = ~/Maildir
+
+     [Repository Remote]
+     type = Gmail
+     remoteuser = medazizknani@gmail.com
+     remotepasseval = get_password_emacs("imap.gmail.com", "medazizknani@gmail.com", "993")
+     realdelete = no
+
+     folderfilter = lambda foldername: foldername not in ['[Gmail]/Spam', '[Gmail].Tous les messages', '[Gmail].Suivis', '[Gmail]/Important']
+
+     remotepass = password
+
+     holdconnectionopen = true
+     keepalive = 60
+     sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+
+
+     [Account MAKCock]
+     localrepository = LocalCock
+     remoterepository = RemoteCock
+
+     [Repository LocalCock]
+     type = Maildir
+     localfolders = ~/Maildir/Cock
+
+     [Repository RemoteCock]
+     type = IMAP
+     remotehost = mail.cock.li
+     remoteuser = mak@cock.li
+     remotepasseval = get_password_emacs("mail.cock.li", "mak@cock.li", "993")
+     realdelete = no
+     remotepass = password
+     holdconnectionopen = true
+     keepalive = 60
+     sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+
+   #+END_SRC
+
+   as for the get_password_emacs function here it is
+
+   #+NAME: 
+   #+BEGIN_SRC python :tangle no
+     import re, os
+
+     def get_password_emacs(machine, login, port):
+         s = "^machine %s login %s port %s password ([^ ]*)$" % (machine, login, port)
+         p = re.compile(s)
+         authinfo = os.popen("gpg -q --no-tty -d ~/.authinfo.gpg").read()
+         for entry in authinfo.splitlines():
+             # return on first match
+             if p.search(entry):
+                 return p.search(entry).group(1)
+             else:
+                 continue
+
+   #+END_SRC
+
+** Multiple mail
+   
+   I use multiple mail accounts
+
+   the code is [[https://www.djcbsoftware.nl/code/mu/mu4e/Multiple-accounts.html][apdated from here]] it takes advantage of mu4e contexts
+
+   sets the current account and the last read account
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defvar my/mu4e-last-read-account "")
+     (defvar my/mu4e-current-account nil)
+   #+END_SRC
+
+   the function that sets accounts
+   
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun my/mu4e-set-account ()
+       "Set the account for composing a message."
+       (interactive)
+       (let* ((account
+               (if mu4e-compose-parent-message
+                   (let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
+                     (string-match "/\\(.*?\\)/" maildir)
+                     (match-string 1 maildir))
+                 (completing-read (format "Compose with account: (%s) "
+                                          (mapconcat #'(lambda (var) (if (string= (car var) my/mu4e-last-read-account)
+                                                                    (format "[%s]" (car var))
+                                                                  (car var)))
+                                                     my/mu4e-account-alist "/"))
+                                  (mapcar #'(lambda (var) (car var)) my/mu4e-account-alist)
+                                  nil t nil nil (caar my/mu4e-account-alist))))
+              (account-vars (cdr (assoc account my/mu4e-account-alist))))
+         (progn
+           (setq my/mu4e-last-read-account account)
+           (setq my/mu4e-current-account account-vars)
+           (if account-vars
+               (mapc #'(lambda (var)
+                         (set (car var) (cadr var)))
+                     account-vars)
+             (error "No email account found")))))
+
+
+   #+END_SRC
+   
+
+   This is function insert the signature, I'm not sure why this doesn't happen by default, this is a fast hack, clearly it needs more debugging
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun my/mu4e-execute-account-vars ()
+       "docstring"
+       (when my/mu4e-current-account
+         (progn
+           (mapc #'(lambda (var)
+                     (set (car var) (cadr var)))
+                 my/mu4e-current-account))
+         (when (string= "*draft*"  (buffer-name))
+           (when message-signature
+             (message-insert-signature)))))
+     (add-hook 'mu4e-compose-mode-hook 'my/mu4e-execute-account-vars)
+
+   #+END_SRC
+
+
+   set the keybinding
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (global-set-key (kbd "C-x c") 'my/mu4e-set-account)
+   #+END_SRC
+   
+
+
+* Music
+
+  I use EMMS for music, I also have emms-player-mpv to play the thing inside mpv.
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'emms-setup)
+    (emms-standard)
+    (emms-default-players)
+    (define-emms-simple-player mplayer '(file url)
+      (regexp-opt '(".ogg" ".mp3" ".wav" ".mpg" ".mpeg" ".wmv" ".wma" ".webm"
+                    ".mov" ".avi" ".divx" ".ogm" ".asf" ".mkv" "http://" "mms://"
+                    ".rm" ".rmvb" ".mp4" ".flac" ".vob" ".m4a" ".flv" ".ogv" ".pls" ".opus"))
+      "mplayer" "-slave" "-quiet" "-really-quiet" "-fullscreen")
+
+    (require 'emms-player-mpv)
+    (add-to-list 'emms-player-list 'emms-player-mpv)
+
+    (require 'emms-info-libtag)
+    (setq emms-info-functions '(emms-info-libtag))
+    ;;; below is a nice key command for toggling the music browser
+    (autoload 'emms-smart-browse "emms-browser.el" "Browse with EMMS" t)
+
+    (global-set-key [(f7)] 'emms-smart-browse)
+
+    (setq emms-source-file-default-directory "~/Music/")
+
+  #+END_SRC
+
+  I also have this in my mpv configuration
+
+     #+NAME:
+     #+BEGIN_SRC sh :tangle no
+       audio-display=no
+     #+END_SRC
+
+  
+  If someone has an elegant function to resize covers and display it inside emms-browser, I would be very happy if you email it to me.
+
+
+* Org
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'org)
+
+  #+END_SRC
+
+  What to record when a task is marked done
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (setq org-log-done 'time)
+  #+END_SRC
+
+
+** Some eye candy stuff
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (add-hook 'org-mode-hook '(lambda ()
+                                (setq left-margin-width 5)
+                                (setq right-margin-width 5)
+                                (visual-line-mode)
+                                (flyspell-mode)))
+
+  #+END_SRC
+
+  This is my agenda files
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (setq org-agenda-files (list
+                            (expand-file-name "~/movie.org")
+                            (expand-file-name "~/mylife.org")))
+
+  #+END_SRC
+
+** Keybindings
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (define-key org-mode-map (kbd "M-RET") 'org-insert-heading)
+    (define-key global-map "\C-cc" 'org-capture)
+    (add-hook 'org-shiftup-final-hook 'windmove-up)
+    (add-hook 'org-shiftleft-final-hook 'windmove-left)
+    (add-hook 'org-shiftdown-final-hook 'windmove-down)
+    (add-hook 'org-shiftright-final-hook 'windmove-right)
+  #+END_SRC
+
+  
+**  org-trello sutff
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'org-trello)
+
+     (setq org-trello-files
+           '("/home/mo/work.org"))
+
+   #+END_SRC
+   
+** C/C++
+   
+   For working with C/C++/D source code
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (org-babel-do-load-languages
+      'org-babel-load-languages '((C . t)))
+
+   #+END_SRC
+
+  
+* Perspective
+
+  I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'perspective)
+
+    (setq persp-initial-frame-name "dev")
+    (persp-mode t)
+
+  #+END_SRC
+
+  
+** Perspectives
+
+   This is my perspectives (or virtual desktops)
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (with-perspective "music"
+       (emms-smart-browse))
+
+     ;; (persp-switch "irc")
+     (with-perspective "email"
+       (mu4e)
+       ;; the easy way, feasible also with emacs-async
+       (sleep-for 1))
+
+     (with-perspective "files"
+       (dired "~/"))
+
+     (with-perspective "org"
+       (org-agenda-list)
+       (sleep-for 1)
+       (delete-other-windows)
+       (switch-to-buffer "*Org Agenda*"))
+
+     (with-perspective "eshell"
+       (eshell))
+
+     (require 'proced)
+     (with-perspective "proced"
+       (proced)
+       (delete-other-windows)
+       (switch-to-buffer "*Proced*"))
+
+   #+END_SRC
+   
+
+   
+* Presentations
+
+  zpresent is what I use for presentations
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'zpresent)
+
+    (add-hook 'zpresent-mode-hook (lambda ()
+                                    (define-key zpresent-mode-map
+                                      (kbd "<up>") #'scroll-down)
+                                    (define-key zpresent-mode-map
+                                      (kbd "<down>") #'scroll-up)))
+
+
+    (provide 'present-config)
+
+  #+END_SRC
+
+  
+* Python
+  
+  I'm a heavy python user, but my config is less than 2 instructions, which is great since elpy offers tons of things out of the box
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (elpy-enable)
+
+    (setenv "WORKON_HOME" "/home/mo/vEnvs/")
+
+
+  #+END_SRC
+
+
+  
+* Web dev
+
+  I mainly do vuejs, I use ES6, but I use js-mode not js2-mode since MMM-mode doesn't seem to support it.
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'vue-mode)
+    (require 'emmet-mode)
+    (require 'web-mode)
+
+    (setq js-indent-level 2)
+
+    (add-hook 'vue-mode-hook 'emmet-mode)
+    (add-hook 'css-mode-hook 'emmet-mode)
+    (add-hook 'web-mode-hook 'emmet-mode)
+
+
+  #+END_SRC
+
+
+* Pomodoro
+
+  I use the pomodoro technique when working on writing or programming projects
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'pomodoro) 
+    (pomodoro-add-to-mode-line)
+
+  #+END_SRC
+
+* Prettify symbols
+
+  Some stuff to prettify
+
+** Prog-mode
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (global-prettify-symbols-mode 1)
+     (add-hook 'prog-mode-hook
+               (lambda ()
+                 (push '("!="      . ?≠) prettify-symbols-alist)
+                 (push '("<="      . ?≤) prettify-symbols-alist)
+                 (push '(">="      . ?≥) prettify-symbols-alist)
+                 (push '("alpha"   . ?α) prettify-symbols-alist)
+                 (push '("beta"    . ?β) prettify-symbols-alist)
+                 (push '("gamma"   . ?γ) prettify-symbols-alist)
+                 (push '("delta"   . ?Δ) prettify-symbols-alist)
+                 (push '("epsilon" . ?ε) prettify-symbols-alist)
+                 (push '("theta"   . ?θ) prettify-symbols-alist)
+                 (push '("pi"      . ?π) prettify-symbols-alist)
+                 (push '("sqrt"    . ?√) prettify-symbols-alist)))
+
+   #+END_SRC
+
+** Python-mode
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (add-hook 'python-mode-hook
+               (lambda ()
+                 (push '("def" . ?ƒ) prettify-symbols-alist)
+                 (push '("sum" . ?∑) prettify-symbols-alist)
+                 (push '("**2" . ?²) prettify-symbols-alist)
+                 (push '("**3" . ?³) prettify-symbols-alist)))
+
+   #+END_SRC
+
+* IDO
+
+  I have used helm before, it is very nice, and the programming interface is also nice but I just stuck with ido.
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp
+    (require 'ido)
+    (ido-mode 1)
+    (ido-everywhere 1)
+  #+END_SRC
+  
+  I also use flx-ido
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'flx-ido)
+    (flx-ido-mode 1)
+    ;; disable ido faces to see flx highlights.
+    (setq ido-enable-flex-matching t)
+    (setq ido-use-faces nil)
+
+  #+END_SRC
+  
+  ido-vertical-mode also looks nice
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'ido-vertical-mode)
+    (ido-vertical-mode 1)
+  #+END_SRC
+  
+  ido-mode when I press M-x
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'smex)
+    (smex-initialize)
+    (global-set-key (kbd "M-x") 'smex)
+
+  #+END_SRC
+
+
+* Projectile
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'projectile)
+
+    (projectile-mode 1)
+    
+  #+END_SRC
+
+  use grep only on files tracked by git
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp
+    (setq projectile-use-git-grep 1)
+
+  #+END_SRC
+
+
+* Magit
+  
+  I use magit and magithub to work with github
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'magit)
+    (require 'magithub)
+    (global-set-key (kbd "C-x g") 'magit-status)
+    (magithub-feature-autoinject t)
+    (put 'magit-clean 'disabled nil)
+
+    (global-set-key (kbd "<f12>") 'menu-bar-mode)
+
+  #+END_SRC
+
+  This needs github's hub installed.
+  
+
+* Other
+
+  
+** Increment and decrements numbers
+
+   Functions to replicate the Vim feature to increment and decrement number at point.
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun number-at-point (fn)
+       (skip-chars-backward "0-9")
+       (or (looking-at "[0-9]+")
+           (error "No number at point"))
+       (replace-match (number-to-string (funcall fn (string-to-number (match-string 0))))))
+
+     (defun increment-number-at-point()
+       (interactive)
+       (number-at-point '1+))
+
+     (defun decrement-number-at-point()
+       (interactive)
+       (number-at-point '1-))
+
+
+     (global-set-key (kbd "C-c +") 'increment-number-at-point)
+     (global-set-key (kbd "C-c -") 'decrement-number-at-point)
+
+   #+END_SRC
+   
+** To "zoom" in and out using mouse
+
+   Sometimes I like to use my mouse for stuff
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (global-set-key [C-mouse-4] 'text-scale-increase)
+     (global-set-key [C-mouse-5] 'text-scale-decrease)
+
+   #+END_SRC
+
+
+** Resize window interactively
+   Resize windows in speed, I use resize-window it is not position aware, meaning if I'm in the bottom most window it isn't as natural as if resize from the left most window, this happens also in i3wm so I think it's normal, also I don't think it's hard to implement so I would love to see this feature.
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (require 'resize-window)
+     (global-set-key (kbd "C-c ;") 'resize-window)
+
+   #+END_SRC
+
+** Winner
+
+   This just returns to the previous window configuration, sadly it doesn't work as excepted when using perspective mode, I hope it gets fixed though
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (winner-mode 1)
+
+   #+END_SRC
+   
+   
+** yas
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+       
+     (yas-global-mode 1)
+
+   #+END_SRC
+
+** highlight parentheses
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (global-highlight-parentheses-mode 1)
+
+   #+END_SRC
+
+** expand region
+   
+   This package is very helpful to navigate code, it's most helpful in languages that use S-expressions which are mainly lisps, but it also works with C and Javascript
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'expand-region)
+     (global-set-key (kbd "C-c =") 'er/expand-region)
+
+   #+END_SRC
+
+** ace-jump mode
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'ace-jump-mode)
+     (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+     (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+
+   #+END_SRC
+
+** Recreate scratch buffer
+
+   just recreates scratch buffer when it's killed, I got this from the EmacsWiki
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (with-current-buffer "*scratch*"
+       (lisp-interaction-mode)
+       (make-local-variable 'kill-buffer-query-functions)
+       (add-hook 'kill-buffer-query-functions 'kill-scratch-buffer))
+
+     (defun kill-scratch-buffer ()
+       ;; The next line is just in case someone calls this manually
+       (set-buffer (get-buffer-create "*scratch*"))
+       ;; Kill the current (*scratch*) buffer
+       (remove-hook 'kill-buffer-query-functions 'kill-scratch-buffer)
+       (kill-buffer (current-buffer))
+       ;; Make a brand new *scratch* buffer
+       (set-buffer (get-buffer-create "*scratch*"))
+       (lisp-interaction-mode)
+       (make-local-variable 'kill-buffer-query-functions)
+       (add-hook 'kill-buffer-query-functions 'kill-scratch-buffer)
+       ;; Since we killed it, don't let caller do that.
+       nil)
+
+   #+END_SRC
+
+** Backups
+
+   Save backups in another directory
+
+   #+NAME: 
+
+   #+BEGIN_SRC emacs-lisp  
+     (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+           backup-by-copying t    ; Don't delink hardlinks
+           version-control t      ; Use version numbers on backups
+           delete-old-versions t  ; Automatically delete excess backups
+           kept-new-versions 20   ; how many of the newest versions to keep
+           kept-old-versions 5    ; and how many of the old
+           )
+
+   #+END_SRC
+
+** Web browser
+
+   sets my default web browser
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (setq browse-url-browser-function 'browse-url-generic
+           browse-url-generic-program "icecat")
+
+   #+END_SRC
+
+   
+** Smarter beginning of line
+   
+   I got this from sacha chua's config which she got from crux package I think 
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (defun my/smarter-move-beginning-of-line (arg)
+       "Move point back to indentation of beginning of line.
+
+     Move point to the first non-whitespace character on this line.
+     If point is already there, move to the beginning of the line.
+     Effectively toggle between the first non-whitespace character and
+     the beginning of the line.
+
+     If ARG is not nil or 1, move forward ARG - 1 lines first.  If
+     point reaches the beginning or end of the buffer, stop there."
+       (interactive "^p")
+       (setq arg (or arg 1))
+
+       ;; Move lines first
+       (when (/= arg 1)
+         (let ((line-move-visual nil))
+           (forward-line (1- arg))))
+
+       (let ((orig-point (point)))
+         (back-to-indentation)
+         (when (= orig-point (point))
+           (move-beginning-of-line 1))))
+
+     ;; remap C-a to `smarter-move-beginning-of-line'
+     (global-set-key [remap move-beginning-of-line]
+                     'my/smarter-move-beginning-of-line)
+
+
+   #+END_SRC
+
+   
+   
+** Add timestamp
+
+   Adds timestamp before saving each file
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (add-hook 'before-save-hook 'time-stamp)
+
+   #+END_SRC
+
+** Tramp sudo edit
+
+   Use tramp to edit files with root, I got this from bbastov blog
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun sudo-edit (&optional arg)
+       "Edit currently visited file as root.
+     With a prefix ARG prompt for a file to visit.
+     Will also prompt for a file to visit if current
+     buffer is not visiting a file."
+       (interactive "P")
+       (if (or arg (not buffer-file-name))
+           (find-file (concat "/sudo:root@localhost:"
+                              (ido-read-file-name "Find file(as root): ")))
+         (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+
+   #+END_SRC
+
+   
+** Company mode
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'company)
+     (add-hook 'after-init-hook 'global-company-mode)
+
+   #+END_SRC
+
+** Terminal stuff
+   Stuff I use when I run Emacs in a terminal emulator
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (define-key input-decode-map "\e[1;2A" [S-up])
+     (define-key input-decode-map "\e[1;2B" [S-down])
+     ;; xclip
+     (require 'xclip)
+     (xclip-mode 1)
+     ;; let the terminal decide the background color
+     (custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
+     ;; to avoid delay in terminal
+     (setq-default xterm-query-timeout nil)
+
+   #+END_SRC
+
+   This needs xclip installed on the machine to facilitate copying and pasting between Emacs and other X windows.
+
+** Scratch message
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (setq initial-scratch-message ";; ╔═╗┌─┐┬─┐┌─┐┌┬┐┌─┐┬ ┬\n;; ╚═╗│  ├┬┘├─┤ │ │  ├─┤\n;; ╚═╝└─┘┴└─┴ ┴ ┴ └─┘┴ ┴\n\n")
+     (setq inhibit-startup-screen t)
+
+   #+END_SRC
+
+** Proced
+
+   auto update proced
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun proced-settings ()
+       (proced-toggle-auto-update 1))
+
+
+   #+END_SRC
+
+** Hide some minor modes
+   
+   Hide some minor modes
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defvar hidden-minor-modes
+
+       '(flycheck-mode
+         flyspell-mode
+         highlight-parentheses-mode
+         paredit-mode
+         auto-revert-mode))
+
+     (defun purge-minor-modes ()
+       (interactive)
+       (dolist (x hidden-minor-modes nil)
+         (diminish x)))
+
+     (add-hook 'after-change-major-mode-hook 'purge-minor-modes)
+
+   #+END_SRC
+
+   
+** 80 column indicator 
+   
+   
+   Yes I still follow the 80 column rule, and no I don't use a 80 column computer terminal.
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (require 'fill-column-indicator)
+     (add-hook 'prog-mode-hook (lambda ()
+                                 (fci-mode t)))
+
+   #+END_SRC
+
+** ace-window
+   
+   This is like ace-jump but for windows
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'ace-window)
+     (global-set-key (kbd "C-x o") 'ace-window)
+
+   #+END_SRC
+   
+** Flycheck
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'flycheck)
+     (global-flycheck-mode 1)
+
+   #+END_SRC
+
+** Hm
+
+   Some other packages I require
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'engine-search)
+     (require 'kill-ring-ido)
+
+     (global-set-key (kbd "C-c y") '(lambda ()
+                                      (interactive)
+                                      (kill-ring-ido)))
+
+   #+END_SRC
+
+** Windmove
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (global-set-key (kbd "S-<up>") 'windmove-up)
+     (global-set-key (kbd "S-<down>") 'windmove-down)
+     (global-set-key (kbd "S-<left>") 'windmove-left)
+     (global-set-key (kbd "S-<right>") 'windmove-right)
+   #+END_SRC
+
+** Startup
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+      (switch-to-buffer "*scratch*")
+   #+END_SRC
