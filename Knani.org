@@ -1,110 +1,184 @@
-#+TITLE: My Emacs configuration file
+#+TITLE: Mohamed Aziz Knani configuration file
 #+AUTHOR: Mohamed Aziz Knani
 #+BABEL: :cache yes
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://aziz.tn/orgmin.css"/>
-#+PROPERTY: header-args :tangle yes
+#+PROPERTY: header-args :tangle init.el
+
 
 * Introduction
 
   I like very much the idea of [[https://en.wikipedia.org/wiki/Literate_programming][literate programming]], it appears that Org-mode in Emacs shines in doing this, the code here is tangled into an emacs lisp file and loaded by emacs, I also weave it into an html file and post it on my website.
   
-  What this will do is it will 
+  I don't recommend that you use this, I encourage you to craft your own Emacs configuration, since I make a lot of decision here that you might not like.
+
+  BTW this is a very small config it's less than 600 lines of code.
+
+  You can download the configuration by doing:
+
+  #+NAME: 
+  #+BEGIN_SRC sh :tangle no  
+    git clone https://github.com/mohamed-aziz/.emacs.d-new.git
+  #+END_SRC
+
+  Don't like using org? just revert to this commit =79d3e805a9868adf45877733b5422b260fafa971= .
+
+  Then you just do
+
+  #+NAME: 
+  #+BEGIN_SRC sh :tangle no  
+    mv .emacs.d-new ~/.emacs.d 
+  #+END_SRC
+  
+  Than install all the dependencies.
+
+  In the beginning this must be found in your init.el, this will just tangle =Knani.org=, reload =init.el= and byte compile it.
 
    #+BEGIN_SRC emacs-lisp :tangle no
      (require 'org)
      (org-babel-tangle-file (concat user-emacs-directory "Knani.org"))
-     (load-file (concat user-emacs-directory "Knani.el"))
-     (byte-compile-file (concat user-emacs-directory "Knani.el"))
+     (load-file (concat user-emacs-directory "init.el"))
+     (byte-compile-file (concat user-emacs-directory "init.el"))
    #+END_SRC
   
-* Personal Information
-  #+BEGIN_SRC emacs-lisp
-    (setq user-full-name "Mohamed Aziz Knani"
-      user-mail-address "medazizknani@gmail.com")
-  #+END_SRC
-  
-* Package sources
-  
-  If the system has gnutls use ssl.
+  If you are done with changes just re-tangle =Knani.org= using =C-c C-v t=.
 
-  #+BEGIN_SRC emacs-lisp
-    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                        (not (gnutls-available-p))))
-           (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
-      (add-to-list 'package-archives (cons "melpa" url) t))
+* Initialize
+** Personal Information
+   #+BEGIN_SRC emacs-lisp
+     (setq user-full-name "Mohamed Aziz Knani"
+       user-mail-address "medazizknani@gmail.com")
+   #+END_SRC
+   
+** Package sources
 
-    (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                        (not (gnutls-available-p))))
-           (url (concat (if no-ssl "http" "https") "://orgmode.org/elpa/")))
-      (add-to-list 'package-archives (cons "org" url) t))
+   Initialize package
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (require 'package)
+     (package-initialize)
+   #+END_SRC
 
-  #+END_SRC
+   
+   If the system has gnutls use ssl.
 
-  from [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][glyph's blog]] 
+   #+BEGIN_SRC emacs-lisp
+     (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                         (not (gnutls-available-p))))
+            (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
+       (add-to-list 'package-archives (cons "melpa" url) t))
 
-  #+BEGIN_SRC emacs-lisp
-    (setq tls-program "gnutls-cli")
+     (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                         (not (gnutls-available-p))))
+            (url (concat (if no-ssl "http" "https") "://orgmode.org/elpa/")))
+       (add-to-list 'package-archives (cons "org" url) t))
 
-    (let ((trustfile
-           (replace-regexp-in-string
-            "\\\\" "/"
+   #+END_SRC
+
+   from [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][glyph's blog]] 
+
+   #+BEGIN_SRC emacs-lisp
+     (setq tls-program "gnutls-cli")
+
+     (let ((trustfile
             (replace-regexp-in-string
-             "\n" ""
-             (shell-command-to-string "python -m certifi")))))
-      (setq tls-program
-            (list
-             (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
-                     (if (eq window-system 'w32) ".exe" "") trustfile))))
+             "\\\\" "/"
+             (replace-regexp-in-string
+              "\n" ""
+              (shell-command-to-string "python -m certifi")))))
+       (setq tls-program
+             (list
+              (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                      (if (eq window-system 'w32) ".exe" "") trustfile))))
 
-  #+END_SRC
+   #+END_SRC
+
+   
+** Load custom file
+
+   Load custom settings
+
+   #+BEGIN_SRC emacs-lisp 
+     (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+     (when (file-exists-p custom-file)
+       (load custom-file))
+
+   #+END_SRC
+
+** Look and feel
+   
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (tool-bar-mode   0)
+     (menu-bar-mode   0)
+
+     (when (> emacs-major-version 24)
+       (scroll-bar-mode 0))
+
+     (add-hook 'after-init-hook (lambda ()
+                                  (require 'tao-yin-theme)
+                                  (load-theme 'tao-yin)))
+
+     ;; arabic font
+     (when window-system
+       (set-fontset-font "fontset-default" '(#x600 . #x6ff)
+                         "Kawkab Mono"))
 
 
-  Initialize package
-  
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp 
-    (require 'package)
-    (package-initialize)
-  #+END_SRC
-  
-* Load custom file
+   #+END_SRC
+** Add load paths
 
-  Load custom settings
+   #+BEGIN_SRC emacs-lisp 
+     (add-to-list 'load-path
+                  (expand-file-name "lisp" user-emacs-directory))
+     (add-to-list 'load-path
+                  (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
+     (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 
-  #+BEGIN_SRC emacs-lisp 
-    (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+   #+END_SRC
 
-    (when (file-exists-p custom-file)
-      (load custom-file))
 
-  #+END_SRC
+* IDO
 
-* Look and feel
-  
-  
+  I have used helm before, it is very nice, and the programming interface is also nice but I just stuck with ido.
+
   #+NAME: 
   #+BEGIN_SRC emacs-lisp
-    (tool-bar-mode   0)
-    (menu-bar-mode   0)
-
-    (when (> emacs-major-version 24)
-      (scroll-bar-mode 0))
-
-    (add-hook 'after-init-hook (lambda ()
-                                 (require 'tao-yin-theme)
-                                 (load-theme 'tao-yin)))
+    (require 'ido)
+    (ido-mode 1)
+    (ido-everywhere 1)
   #+END_SRC
-* Add load paths
-
-  #+BEGIN_SRC emacs-lisp 
-    (add-to-list 'load-path
-                 (expand-file-name "lisp" user-emacs-directory))
-    (add-to-list 'load-path
-                 (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
-    (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+  
+  I also use flx-ido
+  
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'flx-ido)
+    (flx-ido-mode 1)
+    ;; disable ido faces to see flx highlights.
+    (setq ido-enable-flex-matching t)
+    (setq ido-use-faces nil)
 
   #+END_SRC
+  
+  ido-vertical-mode also looks nice
 
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'ido-vertical-mode)
+    (ido-vertical-mode 1)
+  #+END_SRC
+  
+  ido-mode when I press M-x
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'smex)
+    (smex-initialize)
+    (global-set-key (kbd "M-x") 'smex)
+
+  #+END_SRC
 
 * Dired
 
@@ -240,20 +314,6 @@
      (setq dired-dwim-target t)
 
    #+END_SRC
-
-* Elisp
-  
-  Enable show-paren and paredit for Emacs lisp code
-  
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp 
-    (add-hook 'emacs-lisp-mode-hook (lambda ()
-                                      (show-paren-mode 1)
-                                      (paredit-mode 1)))
-
-  #+END_SRC
-
-
 * ERC
 
   ERC is my default IRC client
@@ -309,8 +369,6 @@
                                 (setq eshell-path-env path-env)))))))))
 
    #+END_SRC
-     
-
 * Email
 
   I use mu4e for Mail
@@ -470,7 +528,7 @@
 
    #+END_SRC
 
-   as for the get_password_emacs function here it is
+   as for the =get_password_emacs= function here it is
 
    #+NAME: 
    #+BEGIN_SRC python :tangle no
@@ -562,9 +620,6 @@
    #+BEGIN_SRC emacs-lisp  
      (global-set-key (kbd "C-x c") 'my/mu4e-set-account)
    #+END_SRC
-   
-
-
 * Music
 
   I use EMMS for music, I also have emms-player-mpv to play the thing inside mpv.
@@ -603,8 +658,74 @@
 
   
   If someone has an elegant function to resize covers and display it inside emms-browser, I would be very happy if you email it to me.
+  
+** TODO Covers
+   
+   This piece of code doesn't always work, also I need a way around imagemagick to resize all covers
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp :tangle no  
 
 
+     (defun my-emms-covers (dir type)
+       "Choose album cover in DIR deppending on TYPE.
+     Small cover should be less than 80000 bytes.
+     Medium - less than 120000 bytes."
+       (let* ((pics (directory-files-and-attributes
+                     dir t "\\.\\(jpe?g\\|png\\|gif\\|bmp\\)$" t))
+              (pic (car pics))
+              (pic-size (nth 8 pic)))
+         (let (temp)
+           (cond
+            ((eq type 'small)
+             (while (setq temp (cadr pics))
+               (let ((temp-size (nth 8 temp)))
+                 (if (< temp-size pic-size)
+                     (setq pic temp
+                           pic-size temp-size)))
+               (setq pics (cdr pics)))
+             (if (<= (or pic-size 80001) 80000)
+                 (car pic)))
+            ((eq type 'medium)
+             (if (and pic (setq temp (cadr pics)))
+                 (progn
+                   (setq pics (cdr pics))
+                   (let ((temp-size (nth 8 temp)))
+                     (let ((small temp)
+                           (small-size temp-size))
+                       (if (< pic-size small-size)
+                           (setq small pic
+                                 small-size pic-size
+                                 pic temp
+                                 pic-size temp-size))
+                       (while (setq temp (cadr pics))
+                         (setq temp-size (nth 8 temp))
+                         (cond
+                          ((< temp-size small-size)
+                           (setq pic small
+                                 pic-size small-size
+                                 small temp
+                                 small-size temp-size))
+                          ((< temp-size pic-size)
+                           (setq pic temp
+                                 pic-size temp-size)))
+                         (setq pics (cdr pics)))
+                       (car (if (<= pic-size 120000) pic
+                              small)))))
+               (car pic)))
+            ((eq type 'large)
+             (while (setq temp (cadr pics))
+               (let ((temp-size (nth 8 temp)))
+                 (if (> temp-size pic-size)
+                     (setq pic temp
+                           pic-size temp-size)))
+               (setq pics (cdr pics)))
+             (car pic))))))
+
+     (setq emms-browser-covers 'my-emms-covers)
+
+
+   #+END_SRC
 * Org
 
   #+NAME: 
@@ -622,6 +743,8 @@
 
 
 ** Some eye candy stuff
+
+   What is olivetti-mode?
 
   #+NAME: 
   #+BEGIN_SRC emacs-lisp  
@@ -678,8 +801,6 @@
       'org-babel-load-languages '((C . t)))
 
    #+END_SRC
-
-  
 * Perspective
 
   I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
@@ -728,9 +849,6 @@
        (switch-to-buffer "*Proced*"))
 
    #+END_SRC
-   
-
-   
 * Presentations
 
   zpresent is what I use for presentations
@@ -750,41 +868,53 @@
 
   #+END_SRC
 
-  
-* Python
-  
-  I'm a heavy python user, but my config is less than 2 instructions, which is great since elpy offers tons of things out of the box
+* Development
 
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (elpy-enable)
+** Python
+   
+   I'm a heavy python user, but my config is less than 2 instructions, which is great since elpy offers tons of things out of the box
 
-    (setenv "WORKON_HOME" "/home/mo/vEnvs/")
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (elpy-enable)
 
-
-  #+END_SRC
+     (setenv "WORKON_HOME" "/home/mo/vEnvs/")
 
 
-  
-* Web dev
-
-  I mainly do vuejs, I use ES6, but I use js-mode not js2-mode since MMM-mode doesn't seem to support it.
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (require 'vue-mode)
-    (require 'emmet-mode)
-    (require 'web-mode)
-
-    (setq js-indent-level 2)
-
-    (add-hook 'vue-mode-hook 'emmet-mode)
-    (add-hook 'css-mode-hook 'emmet-mode)
-    (add-hook 'web-mode-hook 'emmet-mode)
+   #+END_SRC
 
 
-  #+END_SRC
+   
+** Web dev
 
+   I mainly do vuejs, I use ES6, but I use js-mode not js2-mode since MMM-mode doesn't seem to support it.
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'vue-mode)
+     (require 'emmet-mode)
+     (require 'web-mode)
+
+     (setq js-indent-level 2)
+
+     (add-hook 'vue-mode-hook 'emmet-mode)
+     (add-hook 'css-mode-hook 'emmet-mode)
+     (add-hook 'web-mode-hook 'emmet-mode)
+
+
+   #+END_SRC
+
+** Elisp
+   
+   Enable show-paren and paredit for Emacs lisp code
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (add-hook 'emacs-lisp-mode-hook (lambda ()
+                                       (show-paren-mode 1)
+                                       (paredit-mode 1)))
+
+   #+END_SRC
 
 * Pomodoro
 
@@ -834,48 +964,6 @@
 
    #+END_SRC
 
-* IDO
-
-  I have used helm before, it is very nice, and the programming interface is also nice but I just stuck with ido.
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp
-    (require 'ido)
-    (ido-mode 1)
-    (ido-everywhere 1)
-  #+END_SRC
-  
-  I also use flx-ido
-  
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (require 'flx-ido)
-    (flx-ido-mode 1)
-    ;; disable ido faces to see flx highlights.
-    (setq ido-enable-flex-matching t)
-    (setq ido-use-faces nil)
-
-  #+END_SRC
-  
-  ido-vertical-mode also looks nice
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (require 'ido-vertical-mode)
-    (ido-vertical-mode 1)
-  #+END_SRC
-  
-  ido-mode when I press M-x
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (require 'smex)
-    (smex-initialize)
-    (global-set-key (kbd "M-x") 'smex)
-
-  #+END_SRC
-
-
 * Projectile
   
   #+NAME: 
@@ -893,7 +981,6 @@
     (setq projectile-use-git-grep 1)
 
   #+END_SRC
-
 
 * Magit
   
@@ -913,7 +1000,6 @@
 
   This needs github's hub installed.
   
-
 * Other
 
   
