@@ -1,7 +1,7 @@
 #+TITLE: Mohamed Aziz Knani configuration file
 #+AUTHOR: Mohamed Aziz Knani
 #+BABEL: :cache yes
-#+PROPERTY: header-args :tangle init.el
+#+PROPERTY: header-args :tangle init.el :results output silent
 
 
 * Introduction
@@ -266,7 +266,7 @@
 
    #+END_SRC
 
-
+   
 ** Open with xdg-open
    
    This just lets me open files (or directories) with their default applications, it doesn't support windows though since I don't think that it has a facility to open files like that.
@@ -370,7 +370,7 @@
 
    #+END_SRC
 * Email
-
+  
   I use mu4e for Mail
   
   #+NAME: 
@@ -740,8 +740,27 @@
   #+BEGIN_SRC emacs-lisp  
     (setq org-log-done 'time)
   #+END_SRC
+  
+  For better viewing math equations
 
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 
+  #+END_SRC
+
+  For easier math symbols input for latex
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    ;; (add-to-list 'company-backends 'company-math-symbols-unicode)
+  #+END_SRC
+** Packages
+   
+   #+begin_src emacs-lisp
+   ;; (require 'org-contacts)
+   #+end_src
+   
 ** Some eye candy stuff
 
    What is olivetti-mode?
@@ -964,6 +983,12 @@
 
    #+END_SRC
 
+** Unprettify at point
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (setq prettify-symbols-unprettify-at-point t)
+   #+END_SRC
 * Projectile
   
   #+NAME: 
@@ -1002,7 +1027,6 @@
   
 * Other
 
-  
 ** Increment and decrements numbers
 
    Functions to replicate the Vim feature to increment and decrement number at point.
@@ -1039,8 +1063,6 @@
      (global-set-key [C-mouse-5] 'text-scale-decrease)
 
    #+END_SRC
-
-
 ** Resize window interactively
    Resize windows in speed, I use resize-window it is not position aware, meaning if I'm in the bottom most window it isn't as natural as if resize from the left most window, this happens also in i3wm so I think it's normal, also I don't think it's hard to implement so I would love to see this feature.
    
@@ -1060,7 +1082,6 @@
      (winner-mode 1)
 
    #+END_SRC
-   
    
 ** yas
 
@@ -1155,7 +1176,6 @@
 
    #+END_SRC
 
-   
 ** Smarter beginning of line
    
    I got this from sacha chua's config which she got from crux package I think 
@@ -1193,7 +1213,6 @@
    #+END_SRC
 
    
-   
 ** Add timestamp
 
    Adds timestamp before saving each file
@@ -1223,7 +1242,6 @@
 
    #+END_SRC
 
-   
 ** Company mode
 
    #+NAME: 
@@ -1296,7 +1314,6 @@
 
    #+END_SRC
 
-   
 ** 80 column indicator 
    
    
@@ -1360,4 +1377,16 @@
    #+NAME: 
    #+BEGIN_SRC emacs-lisp  
       (switch-to-buffer "*scratch*")
+   #+END_SRC   
+** Tea
+
+   Timer code for brewing my tea.
+
+   You need the say program (it comes with GNUstep).
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'tea-time)
+     (setq tea-time-sound-command "say \"Tea is ready\" ")
+     (setq tea-time-sound t)
    #+END_SRC
