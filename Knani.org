@@ -108,8 +108,8 @@
 ** Look and feel
    
    
-   #+NAME: 
-   #+BEGIN_SRC emacs-lisp
+   #+NAME:
+   #+BEGIN_SRC emacs-lisp 
      (tool-bar-mode   0)
      (menu-bar-mode   0)
 
@@ -129,7 +129,7 @@
    #+END_SRC
 ** Add load paths
 
-   #+BEGIN_SRC emacs-lisp 
+   #+BEGIN_SRC emacs-lisp
      (add-to-list 'load-path
                   (expand-file-name "lisp" user-emacs-directory))
      (add-to-list 'load-path
@@ -214,7 +214,7 @@
      (setq dired-listing-switches "-lah")
    #+END_SRC
 
-
+   
 ** Download file
 
    An interactive function to download files from [[https://stackoverflow.com/questions/4448055/download-a-file-with-emacs-lisp][here]]
@@ -319,7 +319,7 @@
   ERC is my default IRC client
 
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (require 'erc)
     (require 'erc-log)
 
@@ -342,9 +342,6 @@
                                          "#gnu"
                                          "#django"
                                          "##programming")))
-
-
-
   #+END_SRC
 
 * Eshell
@@ -625,7 +622,7 @@
   I use EMMS for music, I also have emms-player-mpv to play the thing inside mpv.
 
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (require 'emms-setup)
     (emms-standard)
     (emms-default-players)
@@ -729,7 +726,7 @@
 * Org
 
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (require 'org)
 
   #+END_SRC
@@ -737,14 +734,14 @@
   What to record when a task is marked done
 
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (setq org-log-done 'time)
   #+END_SRC
   
   For better viewing math equations
 
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 
   #+END_SRC
@@ -752,7 +749,7 @@
   For easier math symbols input for latex
 
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     ;; (add-to-list 'company-backends 'company-math-symbols-unicode)
   #+END_SRC
 ** Packages
@@ -766,7 +763,7 @@
    What is olivetti-mode?
 
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (add-hook 'org-mode-hook '(lambda ()
                                 (setq left-margin-width 5)
                                 (setq right-margin-width 5)
@@ -778,7 +775,7 @@
   This is my agenda files
   
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (setq org-agenda-files (list
                             (expand-file-name "~/movie.org")
                             (expand-file-name "~/mylife.org")))
@@ -802,7 +799,7 @@
 **  org-trello sutff
    
    #+NAME: 
-   #+BEGIN_SRC emacs-lisp  
+   #+BEGIN_SRC emacs-lisp
      (require 'org-trello)
 
      (setq org-trello-files
@@ -820,6 +817,48 @@
       'org-babel-load-languages '((C . t)))
 
    #+END_SRC
+
+** Shoot and insert
+   
+   Shoot dosbox and insert
+   
+   #+NAME: Screenshot
+   #+BEGIN_SRC emacs-lisp 
+     (defun insert-shot ()
+       (interactive)
+       (let*
+           ((filename (concat (format "%04x" (random (expt 16 4))) ".png" )))
+         ;; change to window; take shot; and insert it
+         (shell-command (concat "wmctrl -a WINXP && import -window $(xdotool getactivewindow) " filename))
+         ;; return to emacs
+         (shell-command "wmctrl -a Emacs")
+         ;; insert image to org file
+         (insert (format "
+     ,#+CAPTION: caption
+     ,#+LABEL: fig:label
+     ,#+ATTR_LATEX: :float
+
+     [[file:%s]]" filename))))
+
+
+     (define-key org-mode-map (kbd "<f8>") 'insert-shot)
+
+   #+END_SRC
+   
+** Latex export code stuff
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (setq org-latex-listings 'minted)
+     (setq org-src-fontify-natively t)
+
+
+     (setq org-latex-listings 'minted
+           org-latex-packages-alist '(("" "minted"))
+           org-latex-pdf-process
+           '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+             "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+   #+END_SRC
+   
 * Perspective
 
   I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
@@ -904,6 +943,19 @@
 
 
    
+** C++
+
+   Setting compile command and recompile key
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+       
+     (add-hook 'c++-mode-hook (lambda ()
+                               (when (buffer-file-name)
+                                 (setq compile-command (concat "g++ -g " (buffer-file-name))))))
+     (define-key c++-mode-map (kbd "C-c C-r") 'recompile)
+   #+END_SRC
+
 ** Web dev
 
    I mainly do vuejs, I use ES6, but I use js-mode not js2-mode since MMM-mode doesn't seem to support it.
@@ -986,13 +1038,13 @@
 ** Unprettify at point
 
    #+NAME: 
-   #+BEGIN_SRC emacs-lisp  
+   #+BEGIN_SRC emacs-lisp
      (setq prettify-symbols-unprettify-at-point t)
    #+END_SRC
 * Projectile
   
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (require 'projectile)
 
     (projectile-mode 1)
@@ -1012,7 +1064,7 @@
   I use magit and magithub to work with github
   
   #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
+  #+BEGIN_SRC emacs-lisp
     (require 'magit)
     (require 'magithub)
     (global-set-key (kbd "C-x g") 'magit-status)
@@ -1020,7 +1072,6 @@
     (put 'magit-clean 'disabled nil)
 
     (global-set-key (kbd "<f12>") 'menu-bar-mode)
-
   #+END_SRC
 
   This needs github's hub installed.
@@ -1303,7 +1354,15 @@
          flyspell-mode
          highlight-parentheses-mode
          paredit-mode
-         auto-revert-mode))
+         auto-revert-mode
+         which-key-mode
+         abbrev-mode
+         visual-line-mode
+         emmet-mode
+         mmm-mode
+         highlight-indentation-mode
+         elpy-mode
+         dired-async-mode))
 
      (defun purge-minor-modes ()
        (interactive)
@@ -1332,7 +1391,7 @@
    This is like ace-jump but for windows
 
    #+NAME: 
-   #+BEGIN_SRC emacs-lisp  
+   #+BEGIN_SRC emacs-lisp
      (require 'ace-window)
      (global-set-key (kbd "C-x o") 'ace-window)
 
@@ -1389,4 +1448,22 @@
      (require 'tea-time)
      (setq tea-time-sound-command "say \"Tea is ready\" ")
      (setq tea-time-sound t)
+     (define-key global-map "\C-ct" 'tea-time)
+   #+END_SRC
+** Multi term
+   This will toggle and select a dedicated multi term buffer.
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key (kbd "C-c x") (lambda ()
+                                     (interactive)
+                                     (require 'multi-term)
+                                     (multi-term-dedicated-toggle)
+                                     (multi-term-dedicated-select)))
+   #+END_SRC
+** Disable blink cursor mode
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (blink-cursor-mode -1)
    #+END_SRC
