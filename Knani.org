@@ -138,7 +138,7 @@
 
    #+END_SRC
 
-
+   
 * IDO
 
   I have used helm before, it is very nice, and the programming interface is also nice but I just stuck with ido.
@@ -987,6 +987,17 @@
 
    #+END_SRC
 
+** Hylang
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (add-hook 'hy-mode-hook (lambda ()
+                               (show-paren-mode 1)
+                               (paredit-mode 1)
+                               (add-to-list 'company-backends 'company-hy)))
+
+   #+END_SRC
+   
 * Pomodoro
 
   I use the pomodoro technique when working on writing or programming projects
@@ -1147,7 +1158,8 @@
 
    #+NAME: 
    #+BEGIN_SRC emacs-lisp  
-     (global-highlight-parentheses-mode 1)
+     ;; (global-highlight-parentheses-mode 1)
+
 
    #+END_SRC
 
