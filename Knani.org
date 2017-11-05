@@ -1480,3 +1480,23 @@
    #+BEGIN_SRC emacs-lisp
      (blink-cursor-mode -1)
    #+END_SRC
+** Flip theme function
+
+   I use a light theme in the morning with colors and all because I work besides my window and it's always sunny where I live so a dark color scheme is not good for my eyes.
+   
+   In the evening I just use a dark theme like most people do
+
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (defun flip-theme (symbol)
+       (interactive "SEnter light/dark:")
+       (if (eq 'dark symbol)
+           (progn
+             (disable-theme 'tsdh-light)
+             (load-theme 'tao-yin))
+         (progn
+           (disable-theme 'tao-yin)
+           (load-theme 'tsdh-light)
+           (set-background-color "#F0F0F0"))))
+   #+END_SRC
