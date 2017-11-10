@@ -1386,19 +1386,6 @@
 
    #+END_SRC
 
-** 80 column indicator 
-   
-   
-   Yes I still follow the 80 column rule, and no I don't use a 80 column computer terminal.
-
-   #+NAME: 
-   #+BEGIN_SRC emacs-lisp
-     (require 'fill-column-indicator)
-     (add-hook 'prog-mode-hook (lambda ()
-                                 (fci-mode t)))
-
-   #+END_SRC
-
 ** ace-window
    
    This is like ace-jump but for windows
