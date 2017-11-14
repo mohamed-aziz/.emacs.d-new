@@ -818,6 +818,15 @@
 
    #+END_SRC
 
+** Hylang
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'ob-hy)
+     (org-babel-do-load-languages
+      'org-babel-load-languages '((hy . t)))
+
+   #+END_SRC
 ** Shoot and insert
    
    Shoot dosbox and insert
