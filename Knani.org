@@ -1485,14 +1485,20 @@
    
    #+NAME: 
    #+BEGIN_SRC emacs-lisp
-     (defun flip-theme (symbol)
-       (interactive "SEnter light/dark:")
-       (if (eq 'dark symbol)
-           (progn
-             (disable-theme 'tsdh-light)
-             (load-theme 'tao-yin))
-         (progn
-           (disable-theme 'tao-yin)
-           (load-theme 'tsdh-light)
-           (set-background-color "#F0F0F0"))))
+     (defvar *last-theme* 'tao-yin
+       "The last recorded theme")
+
+     (defun flip-theme ()
+       (interactive)
+       (if (eq 'tsdh-light *last-theme*)
+	   (progn
+	     (setq *last-theme* 'tao-yin)
+	     (disable-theme 'tsdh-light)
+	     (load-theme 'tao-yin))
+	 (progn
+	   (disable-theme 'tao-yin)
+	   (setq *last-theme* 'tsdh-light)
+	   (load-theme 'tsdh-light)
+	   (set-background-color "#F0F0F0"))))
+   #+END_SRC
    #+END_SRC
