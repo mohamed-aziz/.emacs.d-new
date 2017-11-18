@@ -857,12 +857,9 @@
 ** Latex export code stuff
    #+NAME: 
    #+BEGIN_SRC emacs-lisp 
-     (setq org-latex-listings 'minted)
-     (setq org-src-fontify-natively t)
-
-
-     (setq org-latex-listings 'minted
+     (setq ;; org-latex-listings 'minted
            org-latex-packages-alist '(("" "minted"))
+           org-src-fontify-natively t
            org-latex-pdf-process
            '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
              "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
