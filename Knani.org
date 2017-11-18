@@ -996,8 +996,7 @@
      (add-hook 'hy-mode-hook (lambda ()
                                (show-paren-mode 1)
                                (paredit-mode 1)
-                               (add-to-list 'company-backends 'company-hy)))
-
+                               (set (make-local-variable 'company-backends) '(company-hy))))
    #+END_SRC
    
 * Pomodoro
