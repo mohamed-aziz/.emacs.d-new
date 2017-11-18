@@ -1489,4 +1489,9 @@
 	   (setq *last-theme* 'silkworm)
 	   (load-theme 'silkworm))))
    #+END_SRC
+** Hl line mode
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (global-hl-line-mode 1)
    #+END_SRC
