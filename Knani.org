@@ -1479,7 +1479,7 @@
 
      (defun flip-theme ()
        (interactive)
-       (if (eq 'tsdh-light *last-theme*)
+       (if (eq 'silkworm *last-theme*)
 	   (progn
 	     (setq *last-theme* 'tao-yin)
 	     (disable-theme 'silkworm)
