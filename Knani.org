@@ -139,47 +139,24 @@
    #+END_SRC
 
    
-* IDO
-
-  I have used helm before, it is very nice, and the programming interface is also nice but I just stuck with ido.
+* Helm
+  
+  Enable helm
 
   #+NAME: 
   #+BEGIN_SRC emacs-lisp
-    (require 'ido)
-    (ido-mode 1)
-    (ido-everywhere 1)
+    (require 'helm)
+    (helm-mode 1)
   #+END_SRC
   
-  I also use flx-ido
-  
+  Add some keybindings for helm.
   #+NAME: 
   #+BEGIN_SRC emacs-lisp  
-    (require 'flx-ido)
-    (flx-ido-mode 1)
-    ;; disable ido faces to see flx highlights.
-    (setq ido-enable-flex-matching t)
-    (setq ido-use-faces nil)
-
+    (global-set-key (kbd "M-x") #'helm-M-x)
+    (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+    (global-set-key (kbd "C-x C-f") #'helm-find-files)
   #+END_SRC
   
-  ido-vertical-mode also looks nice
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (require 'ido-vertical-mode)
-    (ido-vertical-mode 1)
-  #+END_SRC
-  
-  ido-mode when I press M-x
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (require 'smex)
-    (smex-initialize)
-    (global-set-key (kbd "M-x") 'smex)
-
-  #+END_SRC
-
 * Dired
 
   #+NAME: 
