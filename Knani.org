@@ -1458,11 +1458,12 @@
                                      (multi-term-dedicated-toggle)
                                      (multi-term-dedicated-select)))
    #+END_SRC
-** Disable blink cursor mode
+** Cursor stuff
 
    #+NAME: 
    #+BEGIN_SRC emacs-lisp
      (blink-cursor-mode -1)
+     (setq-default cursor-type 'box)
    #+END_SRC
 ** Flip theme function
 
