@@ -922,17 +922,9 @@
 
   #+NAME: 
   #+BEGIN_SRC emacs-lisp  
-    (require 'zpresent)
+    (require 'ox-reveal)
 
-    (add-hook 'zpresent-mode-hook (lambda ()
-                                    (define-key zpresent-mode-map
-                                      (kbd "<up>") #'scroll-down)
-                                    (define-key zpresent-mode-map
-                                      (kbd "<down>") #'scroll-up)))
-
-
-    (provide 'present-config)
-
+    (setq org-reveal-root "file:///home/mo/code/reveal.js")
   #+END_SRC
 
 * Development
