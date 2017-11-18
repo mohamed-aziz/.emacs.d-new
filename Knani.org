@@ -1489,6 +1489,12 @@
 	   (setq *last-theme* 'silkworm)
 	   (load-theme 'silkworm))))
    #+END_SRC
+** Paredit stuff
+   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (define-key paredit-mode-map (kbd "{") 'paredit-open-curly)
+   #+END_SRC
 ** Hl line mode
 
    #+NAME: 
