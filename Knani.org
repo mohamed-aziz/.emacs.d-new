@@ -1482,12 +1482,11 @@
        (if (eq 'tsdh-light *last-theme*)
 	   (progn
 	     (setq *last-theme* 'tao-yin)
-	     (disable-theme 'tsdh-light)
+	     (disable-theme 'silkworm)
 	     (load-theme 'tao-yin))
 	 (progn
 	   (disable-theme 'tao-yin)
-	   (setq *last-theme* 'tsdh-light)
-	   (load-theme 'tsdh-light)
-	   (set-background-color "#F0F0F0"))))
+	   (setq *last-theme* 'silkworm)
+	   (load-theme 'silkworm))))
    #+END_SRC
    #+END_SRC
