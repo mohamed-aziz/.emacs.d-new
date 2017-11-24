@@ -831,6 +831,61 @@
 
    #+END_SRC
    
+** Org capture
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (setq org-default-notes-file (expand-file-name "~/notes.org"))
+   #+END_SRC
+   
+   Org contacts 
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-capture-templates
+		  '("c" "Contacts" entry (file "~/people.org")
+		    "* %(org-contacts-template-name)
+     :PROPERTIES:
+     :EMAIL: %(org-contacts-template-email)
+     :END:"))
+   #+END_SRC
+
+   Capture web content
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (add-to-list 'org-capture-templates
+		  '("w" "Web site" entry
+		    (file "")
+		    "* %a :website:\n\n%U %?\n\n%:initial"))
+   #+END_SRC
+
+   Org protocol stuff
+
+
+
+*** Org protocol capture
+
+    #+NAME: 
+    #+BEGIN_SRC emacs-lisp 
+      (server-start)
+      (require 'org-protocol)
+      (require 'org-protocol-capture-html)
+    #+END_SRC
+
+    template
+
+    #+NAME: 
+    #+BEGIN_SRC emacs-lisp
+
+      (add-to-list 'org-capture-templates 
+		   `("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+		     "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?"))
+
+      (add-to-list 'org-capture-templates 
+		   `("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+					     "* %? [[%:link][%:description]] \nCaptured On: %U"))
+    #+END_SRC
 ** Latex export code stuff
    #+NAME: 
    #+BEGIN_SRC emacs-lisp 
