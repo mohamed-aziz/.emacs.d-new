@@ -971,6 +971,13 @@
 
 * Development
 
+** Javascript
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+   #+END_SRC
+
 ** Python
    
    I'm a heavy python user, but my config is less than 2 instructions, which is great since elpy offers tons of things out of the box
