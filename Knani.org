@@ -1465,23 +1465,24 @@
      (defvar hidden-minor-modes
 
        '(flycheck-mode
-         flyspell-mode
-         highlight-parentheses-mode
-         paredit-mode
-         auto-revert-mode
-         which-key-mode
-         abbrev-mode
-         visual-line-mode
-         emmet-mode
-         mmm-mode
-         highlight-indentation-mode
-         elpy-mode
-         dired-async-mode))
+	 flyspell-mode
+	 highlight-parentheses-mode
+	 paredit-mode
+	 auto-revert-mode
+	 which-key-mode
+	 abbrev-mode
+	 visual-line-mode
+	 emmet-mode
+	 mmm-mode
+	 highlight-indentation-mode
+	 elpy-mode
+	 dired-async-mode
+	 helm-mode))
 
      (defun purge-minor-modes ()
        (interactive)
        (dolist (x hidden-minor-modes nil)
-         (diminish x)))
+	 (diminish x)))
 
      (add-hook 'after-change-major-mode-hook 'purge-minor-modes)
 
