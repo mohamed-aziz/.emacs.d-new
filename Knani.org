@@ -1149,6 +1149,46 @@
 
   This needs github's hub installed.
   
+* Key chord
+
+  First require key chord
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp 
+    (require 'key-chord)
+    (key-chord-mode +1)
+  #+END_SRC
+  
+  
+** Switch to previous buffer
+
+   from bastov's blog
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (defun switch-to-previous-buffer ()
+       "Switch to previously open buffer.
+     Repeated invocations toggle between the two most recently open buffers."
+       (interactive)
+       (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+     (key-chord-define-global "JJ" 'switch-to-previous-buffer)
+   #+END_SRC
+  
+** Find file
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (key-chord-define-global "FF" 'helm-find-files)
+   #+END_SRC
+
+** Beginning and end of buffer
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp
+     (key-chord-define-global "jk" 'beginning-of-buffer)
+     (key-chord-define-global "JK" 'end-of-buffer)
+   #+END_SRC
 * Other
 
 ** Increment and decrements numbers
