@@ -886,6 +886,19 @@
 		   `("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
 					     "* %? [[%:link][%:description]] \nCaptured On: %U"))
     #+END_SRC
+** Org contact
+   
+   Set org contact files
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (require 'org-contacts)
+     (setq  org-contacts-files '("~/people.org"))
+   #+END_SRC
+   org-contacts-files
+
+   set org 
+   
 ** Latex export code stuff
    #+NAME: 
    #+BEGIN_SRC emacs-lisp 
