@@ -452,7 +452,20 @@
           smtpmail-debug-info t)
   #+END_SRC
 
+** Epa integration
   
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (add-hook 'message-mode-hook (lambda ()
+			       (epa-mail-mode)))
+
+     (add-hook 'mu4e-view-mode-hook (lambda ()
+				      (epa-mail-mode)))
+
+     (add-hook 'mu4e-compose-mode-hook (lambda ()
+					 (epa-mail-mode)))
+   #+END_SRC
+
 ** Offlineimap configuration
    
    This is not Emacs specific but I just wanted to throw it here
