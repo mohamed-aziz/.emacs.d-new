@@ -851,6 +851,16 @@
 
    #+END_SRC
    
+** Org crypt
+
+   auto crypt org files using EasyPG
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (require 'org-crypt)
+     (org-crypt-use-before-save-magic)
+   #+END_SRC
+
 ** Org capture
 
    #+NAME: 
