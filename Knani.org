@@ -751,12 +751,6 @@
   #+BEGIN_SRC emacs-lisp
     ;; (add-to-list 'company-backends 'company-math-symbols-unicode)
   #+END_SRC
-** Packages
-   
-   #+begin_src emacs-lisp
-   ;; (require 'org-contacts)
-   #+end_src
-   
 ** Some eye candy stuff
 
    What is olivetti-mode?
