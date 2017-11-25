@@ -1532,7 +1532,7 @@
 
    #+END_SRC
 
-** Hm
+** require engine-search
 
    Some other packages I require
 
