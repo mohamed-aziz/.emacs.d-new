@@ -934,6 +934,14 @@
              "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
    #+END_SRC
    
+** Custom faces
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (custom-set-faces
+      '(org-block ((t (:height 1.1)))))
+   #+END_SRC
+   
 * Perspective
 
   I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
