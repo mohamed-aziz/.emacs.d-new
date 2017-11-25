@@ -884,8 +884,26 @@
 		    "* %a %^g \n\ncaptured on: %U \n\n%?\n\n%:initial"))
    #+END_SRC
 
-   Org protocol stuff
+   todo template
 
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (add-to-list 'org-capture-templates
+		  `("t" "Todo" entry (file ,(concat org-directory "/tasks.org"))
+		    "* TODO %?\n  %i\n  %a"))
+
+   #+END_SRC
+
+
+   Capture web bookmarks
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (add-to-list 'org-capture-templates
+		 `("b" "Web site bookmark" entry
+		    (file ,(concat org-directory "/bookmarks.org"))
+		    "* %a %^g\n\n  %?\n  captured on: %U\n\n%:initial"))
+   #+END_SRC
 
 
 *** Org protocol capture
