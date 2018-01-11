@@ -1115,6 +1115,8 @@
      (setq inferior-lisp-program "sbcl"
 	   slime-contribs '(slime-fancy))
    #+END_SRC
+   
+   CL hook:
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'lisp-mode-hook (lambda ()
