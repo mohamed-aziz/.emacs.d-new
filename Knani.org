@@ -108,7 +108,14 @@
 
 ** Look and feel
    
+   Define themes
    
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (defconst dark-theme 'tao-yin)
+     (defconst light-theme 'plan9)
+   #+END_SRC
+      
    #+NAME:
    #+BEGIN_SRC emacs-lisp 
      (tool-bar-mode   0)
@@ -118,16 +125,16 @@
        (scroll-bar-mode 0))
 
      (add-hook 'after-init-hook (lambda ()
-                                  (require 'tao-yin-theme)
-                                  (load-theme 'tao-yin)))
+				  (load-theme dark-theme)))
 
      ;; arabic font
      (when window-system
        (set-fontset-font "fontset-default" '(#x600 . #x6ff)
-                         "Kawkab Mono"))
+			 "Kawkab Mono"))
 
 
    #+END_SRC
+
 ** Add load paths
 
    #+BEGIN_SRC emacs-lisp
@@ -177,7 +184,7 @@
 ** Keybindings
 
    #+BEGIN_SRC emacs-lisp  
-     (define-key dired-mode-map "b" 'emms-play-dired)
+     (define-key dired-mode-map "b" 'emms-add-dired)
      (define-key dired-mode-map (kbd "C-c f") 'find-name-dired)
      (define-key dired-mode-map (kbd "C-c o") 'crux-open-with)
    #+END_SRC
@@ -521,6 +528,16 @@
 
    #+END_SRC
 
+** Async smtp send function
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'smtpmail-async)
+
+     (setq send-mail-function 'async-smtpmail-send-it
+	   message-send-mail-function 'async-smtpmail-send-it)
+   #+END_SRC
+
 ** Multiple mail
    
    I use multiple mail accounts
@@ -594,6 +611,72 @@
    #+BEGIN_SRC emacs-lisp  
      (global-set-key (kbd "C-x c") 'my/mu4e-set-account)
    #+END_SRC
+   
+* Perspective
+
+  I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'perspective)
+
+    (setq persp-initial-frame-name "dev")
+    (persp-mode t)
+
+  #+END_SRC
+
+  
+** Perspectives
+
+   This is my perspectives (or virtual desktops)
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     ;; (persp-switch "irc")
+     (with-perspective "email"
+       (mu4e)
+       ;; the easy way, feasible also with emacs-async
+       (sleep-for 1))
+
+     (with-perspective "files"
+       (dired "~/"))
+
+     (with-perspective "org"
+       (org-agenda-list)
+       (sleep-for 1)
+       (delete-other-windows)
+       (switch-to-buffer "*Org Agenda*"))
+
+     (with-perspective "eshell"
+       (eshell))
+
+     (require 'proced)
+     (with-perspective "proced"
+       (proced)
+       (delete-other-windows)
+       (switch-to-buffer "*Proced*"))
+
+   #+END_SRC
+   
+** Show only current perspective
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun persp-update-modestring ()
+       "Update `persp-modestring' to reflect the current perspectives.
+     Has no effect when `persp-show-modestring' is nil."
+       (when persp-show-modestring
+	 (let ((open (list (nth 0 persp-modestring-dividers)))
+	       (close (list (nth 1 persp-modestring-dividers)))
+	       (sep (nth 2 persp-modestring-dividers)))
+	   (if persp-curr
+	       (setq persp-modestring
+		     (append open (list (persp-format-name (persp-name persp-curr)))
+			     close))
+	     (setq persp-modestring nil)))))
+
+   #+END_SRC
+
 * Music
 
   I use EMMS for music, I also have emms-player-mpv to play the thing inside mpv.
@@ -605,8 +688,8 @@
     (emms-default-players)
     (define-emms-simple-player mplayer '(file url)
       (regexp-opt '(".ogg" ".mp3" ".wav" ".mpg" ".mpeg" ".wmv" ".wma" ".webm"
-                    ".mov" ".avi" ".divx" ".ogm" ".asf" ".mkv" "http://" "mms://"
-                    ".rm" ".rmvb" ".mp4" ".flac" ".vob" ".m4a" ".flv" ".ogv" ".pls" ".opus"))
+		    ".mov" ".avi" ".divx" ".ogm" ".asf" ".mkv" "http://" "mms://"
+		    ".rm" ".rmvb" ".mp4" ".flac" ".vob" ".m4a" ".flv" ".ogv" ".pls" ".opus"))
       "mplayer" "-slave" "-quiet" "-really-quiet" "-fullscreen")
 
     (require 'emms-player-mpv)
@@ -632,73 +715,80 @@
 
   
   If someone has an elegant function to resize covers and display it inside emms-browser, I would be very happy if you email it to me.
-  
-** TODO Covers
+
+** Perspective
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (with-perspective "music"
+       (emms-smart-browse))
+   #+END_SRC
+** Covers
    
    This piece of code doesn't always work, also I need a way around imagemagick to resize all covers
 
    #+NAME: 
-   #+BEGIN_SRC emacs-lisp :tangle no  
-
+   #+BEGIN_SRC emacs-lisp
 
      (defun my-emms-covers (dir type)
        "Choose album cover in DIR deppending on TYPE.
      Small cover should be less than 80000 bytes.
      Medium - less than 120000 bytes."
        (let* ((pics (directory-files-and-attributes
-                     dir t "\\.\\(jpe?g\\|png\\|gif\\|bmp\\)$" t))
-              (pic (car pics))
-              (pic-size (nth 8 pic)))
-         (let (temp)
-           (cond
-            ((eq type 'small)
-             (while (setq temp (cadr pics))
-               (let ((temp-size (nth 8 temp)))
-                 (if (< temp-size pic-size)
-                     (setq pic temp
-                           pic-size temp-size)))
-               (setq pics (cdr pics)))
-             (if (<= (or pic-size 80001) 80000)
-                 (car pic)))
-            ((eq type 'medium)
-             (if (and pic (setq temp (cadr pics)))
-                 (progn
-                   (setq pics (cdr pics))
-                   (let ((temp-size (nth 8 temp)))
-                     (let ((small temp)
-                           (small-size temp-size))
-                       (if (< pic-size small-size)
-                           (setq small pic
-                                 small-size pic-size
-                                 pic temp
-                                 pic-size temp-size))
-                       (while (setq temp (cadr pics))
-                         (setq temp-size (nth 8 temp))
-                         (cond
-                          ((< temp-size small-size)
-                           (setq pic small
-                                 pic-size small-size
-                                 small temp
-                                 small-size temp-size))
-                          ((< temp-size pic-size)
-                           (setq pic temp
-                                 pic-size temp-size)))
-                         (setq pics (cdr pics)))
-                       (car (if (<= pic-size 120000) pic
-                              small)))))
-               (car pic)))
-            ((eq type 'large)
-             (while (setq temp (cadr pics))
-               (let ((temp-size (nth 8 temp)))
-                 (if (> temp-size pic-size)
-                     (setq pic temp
-                           pic-size temp-size)))
-               (setq pics (cdr pics)))
-             (car pic))))))
-
-     (setq emms-browser-covers 'my-emms-covers)
+		     dir t "\\.\\(jpe?g\\|png\\|gif\\|bmp\\)$" t))
+	      (pic (car pics))
+	      (pic-size (nth 8 pic)))
+	 (let (temp)
+	   (cond
+	    ((eq type 'small)
+	     (while (setq temp (cadr pics))
+	       (let ((temp-size (nth 8 temp)))
+		 (if (< temp-size pic-size)
+		     (setq pic temp
+			   pic-size temp-size)))
+	       (setq pics (cdr pics)))
+	     (if (<= (or pic-size 80001) 80000)
+		 (car pic)))
+	    ((eq type 'medium)
+	     (if (and pic (setq temp (cadr pics)))
+		 (progn
+		   (setq pics (cdr pics))
+		   (let ((temp-size (nth 8 temp)))
+		     (let ((small temp)
+			   (small-size temp-size))
+		       (if (< pic-size small-size)
+			   (setq small pic
+				 small-size pic-size
+				 pic temp
+				 pic-size temp-size))
+		       (while (setq temp (cadr pics))
+			 (setq temp-size (nth 8 temp))
+			 (cond
+			  ((< temp-size small-size)
+			   (setq pic small
+				 pic-size small-size
+				 small temp
+				 small-size temp-size))
+			  ((< temp-size pic-size)
+			   (setq pic temp
+				 pic-size temp-size)))
+			 (setq pics (cdr pics)))
+		       (car (if (<= pic-size 120000) pic
+			      small)))))
+	       (car pic)))
+	    ((eq type 'large)
+	     (while (setq temp (cadr pics))
+	       (let ((temp-size (nth 8 temp)))
+		 (if (> temp-size pic-size)
+		     (setq pic temp
+			   pic-size temp-size)))
+	       (setq pics (cdr pics)))
+	     (car pic))))))
 
 
+     (add-hook 'emms-playlist-mode-hook
+	       (lambda ()
+		 (setq emms-browser-covers 'my-emms-covers)))
    #+END_SRC
 * Org
 
@@ -749,9 +839,12 @@
   #+BEGIN_SRC emacs-lisp
     (setq org-agenda-files (list
 			    (concat org-directory "/movie.org")
+			    (concat org-directory "/websites.org")
 			    (concat org-directory "/mylife.org")
+			    (concat org-directory "/tasks.org")
 			    (concat org-directory "/notes.org")))
-
+    (setq org-agenda-text-search-extra-files
+	  '("~/org/bookmarks.org"))
   #+END_SRC
 
 ** Keybindings
@@ -844,6 +937,34 @@
    #+END_SRC
    
    Org contacts 
+   
+   mu4e, get email form name
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun org-contacts-mu4e-get-name-email ()
+       "Get name and email address from Gnus message."
+       (if (gnus-alive-p)
+	   (gnus-with-article-headers
+	     (mail-extract-address-components
+	      (or (mail-fetch-field "From") "")))))
+
+   #+END_SRC
+
+   Org contacts phone number template:
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (defun org-contacts-template-phone (&optional return-value)
+       "Try to return the contact phne for a template.
+     If not found return RETURN-VALUE or something that would ask the user."
+       (or (cadr (org-contacts-gnus-get-name-email))
+	   return-value
+	   (concat "%^{PHONE}p")))
+
+   #+END_SRC
+
+   org-capture contacts template:
 
    #+NAME: 
    #+BEGIN_SRC emacs-lisp
@@ -852,8 +973,10 @@
 		    "* %(org-contacts-template-name)
      :PROPERTIES:
      :EMAIL: %(org-contacts-template-email)
+     :PHONE: %(org-contacts-template-phone)
      :END:"))
    #+END_SRC
+
 
    Capture web content
 
@@ -884,6 +1007,15 @@
 		 `("b" "Web site bookmark" entry
 		    (file ,(concat org-directory "/bookmarks.org"))
 		    "* %a %^g\n\n  %?\n  captured on: %U\n\n%:initial"))
+   #+END_SRC
+
+
+   Capture code snippets and computer stuff
+
+   #+BEGIN_SRC emacs-lisp  
+     (add-to-list 'org-capture-templates
+		  `("T" "Tip" entry (file ,(concat org-directory "/tip.org"))
+		    "* %? %^g\n  #+BEGIN_SRC\n%x\n  #+END_SRC\n  %a\n  captured on: %U\n\n"))
    #+END_SRC
 
 
@@ -940,56 +1072,7 @@
    #+NAME: 
    #+BEGIN_SRC emacs-lisp 
      (custom-set-faces
-      '(org-block ((t (:height 1.1)))))
-   #+END_SRC
-   
-* Perspective
-
-  I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (require 'perspective)
-
-    (setq persp-initial-frame-name "dev")
-    (persp-mode t)
-
-  #+END_SRC
-
-  
-** Perspectives
-
-   This is my perspectives (or virtual desktops)
-
-   #+NAME: 
-   #+BEGIN_SRC emacs-lisp  
-     (with-perspective "music"
-       (emms-smart-browse))
-
-     ;; (persp-switch "irc")
-     (with-perspective "email"
-       (mu4e)
-       ;; the easy way, feasible also with emacs-async
-       (sleep-for 1))
-
-     (with-perspective "files"
-       (dired "~/"))
-
-     (with-perspective "org"
-       (org-agenda-list)
-       (sleep-for 1)
-       (delete-other-windows)
-       (switch-to-buffer "*Org Agenda*"))
-
-     (with-perspective "eshell"
-       (eshell))
-
-     (require 'proced)
-     (with-perspective "proced"
-       (proced)
-       (delete-other-windows)
-       (switch-to-buffer "*Proced*"))
-
+      '(org-block ((t (:height 1.3)))))
    #+END_SRC
 * Presentations
 
@@ -1001,6 +1084,12 @@
 
     (setq org-reveal-root "file:///home/mo/code/reveal.js")
   #+END_SRC
+  
+  This needs xwidget support
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'bodil-revealjs)
+  #+END_SRC
 
 * Development
 
@@ -1011,6 +1100,26 @@
      (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
    #+END_SRC
 
+   Allow not ending with semi-colon 
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (setq js2-strict-missing-semi-warning nil)
+   #+END_SRC
+   
+** Common Lisp
+   set inferior lisp program.
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (setq inferior-lisp-program "sbcl"
+	   slime-contribs '(slime-fancy))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'lisp-mode-hook (lambda ()
+				(paredit-mode)))
+   #+END_SRC
 ** Python
    
    I'm a heavy python user, but my config is less than 2 instructions, which is great since elpy offers tons of things out of the box
@@ -1153,6 +1262,14 @@
 
   #+END_SRC
 
+  enable helm-projectile
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'helm-projectile)
+    (helm-projectile-on)
+  #+END_SRC
+
 * Elfeed
 
   #+NAME: 
@@ -1162,7 +1279,8 @@
     (setq elfeed-feeds
 	  '("http://nullprogram.com/feed/"
 	    "http://planet.emacsen.org/atom.xml"
-	    "http://reddit.com/r/emacs/.rss"))
+	    "http://reddit.com/r/emacs/.rss"
+	    "http://irreal.org/blog/?feed=rss2"))
   #+END_SRC
 
 * Magit
@@ -1182,6 +1300,35 @@
 
   This needs github's hub installed.
   
+* Images
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (require 'image+)
+  #+END_SRC
+
+  hydra stuff
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp  
+    (eval-after-load 'image+
+      `(when (require 'hydra nil t)
+	 (defhydra imagex-sticky-binding (global-map "C-x C-l")
+	   "Manipulating Image"
+	   ("+" imagex-sticky-zoom-in "zoom in")
+	   ("-" imagex-sticky-zoom-out "zoom out")
+	   ("M" imagex-sticky-maximize "maximize")
+	   ("O" imagex-sticky-restore-original "restore original")
+	   ("S" imagex-sticky-save-image "save file")
+	   ("r" imagex-sticky-rotate-right "rotate right")
+	   ("l" imagex-sticky-rotate-left "rotate left"))))
+  #+END_SRC
+
+  #+NAME: 
+  #+BEGIN_SRC emacs-lisp 
+    (imagex-global-sticky-mode 1)
+  #+END_SRC
+
 * Key chord
 
   First require key chord
@@ -1531,6 +1678,20 @@
      (global-set-key (kbd "C-x o") 'ace-window)
 
    #+END_SRC
+
+   styling the leading char
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (set-face-attribute 'aw-leading-char-face nil :height 400)
+   #+END_SRC
+   
+   set scope to frame
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (setq aw-scope 'frame)
+   #+END_SRC
    
 ** Flycheck
 
@@ -1575,7 +1736,7 @@
    #+NAME: 
    #+BEGIN_SRC emacs-lisp  
      (require 'tea-time)
-     (setq tea-time-sound-command "say \"Tea is ready\" ")
+     (setq tea-time-sound-command "espeak -vde+f5  \"Es ist teezeit mein Kapitän\"")
      (setq tea-time-sound t)
      (define-key global-map "\C-ct" 'tea-time)
    #+END_SRC
@@ -1589,6 +1750,17 @@
                                      (require 'multi-term)
                                      (multi-term-dedicated-toggle)
                                      (multi-term-dedicated-select)))
+   #+END_SRC
+
+   Add =term-line-mode= and =char-line-mode= keybindings
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp 
+     (eval-after-load 'multi-term
+       `(setq term-bind-key-alist
+	      (cons '("C-c C-z" . term-stop-subjob)
+		    (cons '("C-c C-k" . term-char-mode)
+			  (cons '("C-c C-l" . term-line-mode) term-bind-key-alist)))))
    #+END_SRC
 ** Cursor stuff
 
@@ -1633,3 +1805,4 @@
    #+BEGIN_SRC emacs-lisp 
      (global-hl-line-mode 1)
    #+END_SRC
+** Authinfo order
