@@ -383,33 +383,11 @@
 
   #+END_SRC
 
-  set multiple accounts configurations
-
+  load file with email configuration
+  
   #+NAME: 
   #+BEGIN_SRC emacs-lisp  
-    (defvar my/mu4e-account-alist
-      '(("GMAIL"
-         (mu4e-drafts-folder  "/[Gmail].Brouillons")
-         (mu4e-sent-folder   "/[Gmail].Messages envoy&AOk-s")
-         (mu4e-trash-folder  "/[Gmail].Corbeille")
-         (user-mail-address  "medazizknani@gmail.com")
-         (user-full-name  "Mohamed Aziz Knani")
-         (smtpmail-default-smtp-server  "smtp.gmail.com")
-         (smtpmail-smtp-server  "smtp.gmail.com")
-         (smtpmail-smtp-service  587)
-         (smtpmail-starttls-credentials  '(("smtp.gmail.com" 587 nil nil)))
-         (message-signature "Mohamed Aziz Knani\nhttp://www.aziz.tn/\n"))
-        ("COCK"
-         (mu4e-sent-folder  "/Cock/SENT")
-         (mu4e-trash-folder  "/Cock/Trash")
-         (mu4e-drafts-folder  "/Cock/Drafts")
-         (user-mail-address  "mak@cock.li")
-         (smtpmail-default-smtp-server  "mail.cock.li")
-         (smtpmail-smtp-server  "mail.cock.li")
-         (user-full-name   "mak")
-         (message-signature  "mak.\nhttp://www.aziz.tn/\n")
-         (smtpmail-smtp-service  587)
-         (smtpmail-starttls-credentials '(("mail.cock.li" 587 nil nil))))))
+    (load-file (expand-file-name "~/email.el"))
   #+END_SRC
   
   set the user email address
@@ -427,26 +405,13 @@
   #+BEGIN_SRC emacs-lisp 
     (setq mu4e-sent-messages-behavior 'delete)
 
-  #+END_SRC
-
-  some handy shortcuts
-
-  #+NAME: 
-  #+BEGIN_SRC emacs-lisp  
-    (setq mu4e-maildir-shortcuts
-          '(("/INBOX"             . ?i)
-            ("/[Gmail].Messages envoy&AOk-s" . ?s)
-            ("/[Gmail].Corbeille"     . ?t)
-            ("/Cock/INBOX" . ?c)))
-
-  #+END_SRC
-  
+  #+END_SRC  
 
   update mail using offlineimap
   
   #+NAME: 
   #+BEGIN_SRC emacs-lisp  
-    (setq mu4e-get-mail-command "offlineimap -a MAKCock,Gmail")
+    (setq mu4e-get-mail-command "offlineimap")
 
   #+END_SRC
 
@@ -460,10 +425,11 @@
     (require 'smtpmail)
 
     (setq message-send-mail-function 'smtpmail-send-it
-          starttls-use-gnutls t
-          smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
-          smtpmail-debug-info t)
+	  starttls-use-gnutls t
+	  smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
+	  smtpmail-debug-info t)
   #+END_SRC
+
 ** Epa integration
   
    #+NAME: 
