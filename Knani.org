@@ -15,7 +15,7 @@
 
   You can download the configuration by doing:
 
-  #+NAME: 
+   
   #+BEGIN_SRC sh :tangle no  
     git clone https://github.com/mohamed-aziz/.emacs.d-new.git
   #+END_SRC
@@ -24,7 +24,7 @@
 
   Then you just do
 
-  #+NAME: 
+   
   #+BEGIN_SRC sh :tangle no  
     mv .emacs.d-new ~/.emacs.d 
   #+END_SRC
@@ -53,7 +53,7 @@
 
    Initialize package
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (require 'package)
      (package-initialize)
@@ -110,13 +110,13 @@
    
    Define themes
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (defconst dark-theme 'tao-yin)
      (defconst light-theme 'plan9)
    #+END_SRC
       
-   #+NAME:
+   
    #+BEGIN_SRC emacs-lisp 
      (tool-bar-mode   0)
      (menu-bar-mode   0)
@@ -151,14 +151,14 @@
   
   Enable helm
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (require 'helm)
     (helm-mode 1)
   #+END_SRC
   
   Add some keybindings for helm.
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (global-set-key (kbd "M-x") #'helm-M-x)
     (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
@@ -167,7 +167,7 @@
 
   show kill ring keybinding
   
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp 
     (global-set-key (kbd "C-c y") '(lambda ()
 				     (interactive)
@@ -176,7 +176,7 @@
   
 * Dired
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp 
     (require 'dired)
   #+END_SRC
@@ -240,7 +240,7 @@
    
    I have some functions to normalize filenames, this has some bugs though
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (defun normalize-name (filename)
        "Replace space with underscore"
@@ -302,7 +302,7 @@
    
    This requires dired-hacks-utils
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'dired-subtree)
 
@@ -314,7 +314,7 @@
    
    Some other stuff like dwim and dired-fixups
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'dired-fixups)
      (setq dired-dwim-target t)
@@ -324,7 +324,7 @@
 
   ERC is my default IRC client
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (require 'erc)
     (require 'erc-log)
@@ -376,7 +376,7 @@
   
   I use mu4e for Mail
   
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'mu4e)
 
@@ -384,7 +384,7 @@
 
   set the mail directory
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
   (setq mu4e-maildir (expand-file-name "~/Maildir"))
 
@@ -392,14 +392,14 @@
 
   load file with email configuration
   
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (load-file (expand-file-name "~/email.el"))
   #+END_SRC
   
   set the user email address
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (setq mu4e-user-mail-address-list
           (mapcar (lambda (account) (cadr (assq 'user-mail-address account)))
@@ -408,7 +408,7 @@
   #+END_SRC
 
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp 
     (setq mu4e-sent-messages-behavior 'delete)
 
@@ -416,7 +416,7 @@
 
   update mail using offlineimap
   
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (setq mu4e-get-mail-command "offlineimap")
 
@@ -427,7 +427,7 @@
 
   Here authinfo.gpg is encrpyted using GNUpg, just make sure you don't use symmetric encrpytion so that you don't enter the password every single time (GNUpg caches the passwords using gpg-agent for some time I think)
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'smtpmail)
 
@@ -439,7 +439,7 @@
 
 ** Epa integration
   
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (add-hook 'message-mode-hook (lambda ()
 			       (epa-mail-mode)))
@@ -457,7 +457,7 @@
 
    here is my .offlineimaprc
 
-   #+NAME: 
+    
    #+BEGIN_SRC c :tangle no
        [general]
      accounts = Gmail
@@ -511,7 +511,7 @@
 
    as for the =get_password_emacs= function here it is
 
-   #+NAME: 
+    
    #+BEGIN_SRC python :tangle no
      import re, os
 
@@ -530,7 +530,7 @@
 
 ** Async smtp send function
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'smtpmail-async)
 
@@ -546,7 +546,7 @@
 
    sets the current account and the last read account
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defvar my/mu4e-last-read-account "")
      (defvar my/mu4e-current-account nil)
@@ -555,7 +555,7 @@
    the function that sets accounts
    
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun my/mu4e-set-account ()
        "Set the account for composing a message."
@@ -588,7 +588,7 @@
 
    This is function insert the signature, I'm not sure why this doesn't happen by default, this is a fast hack, clearly it needs more debugging
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun my/mu4e-execute-account-vars ()
        "docstring"
@@ -607,7 +607,7 @@
 
    set the keybinding
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (global-set-key (kbd "C-x c") 'my/mu4e-set-account)
    #+END_SRC
@@ -616,7 +616,7 @@
 
   I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'perspective)
 
@@ -630,7 +630,7 @@
 
    This is my perspectives (or virtual desktops)
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      ;; (persp-switch "irc")
      (with-perspective "email"
@@ -660,7 +660,7 @@
    
 ** Show only current perspective
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun persp-update-modestring ()
        "Update `persp-modestring' to reflect the current perspectives.
@@ -681,7 +681,7 @@
 
   I use EMMS for music, I also have emms-player-mpv to play the thing inside mpv.
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (require 'emms-setup)
     (emms-standard)
@@ -708,7 +708,7 @@
 
   I also have this in my mpv configuration
 
-     #+NAME:
+     
      #+BEGIN_SRC sh :tangle no
        audio-display=no
      #+END_SRC
@@ -718,7 +718,7 @@
 
 ** Perspective
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (with-perspective "music"
        (emms-smart-browse))
@@ -727,7 +727,7 @@
    
    This piece of code doesn't always work, also I need a way around imagemagick to resize all covers
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
 
      (defun my-emms-covers (dir type)
@@ -792,7 +792,7 @@
    #+END_SRC
 * Org
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (require 'org)
 
@@ -800,14 +800,14 @@
 
   What to record when a task is marked done
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (setq org-log-done 'time)
   #+END_SRC
   
   For better viewing math equations
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 
@@ -815,7 +815,7 @@
 
   For easier math symbols input for latex
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     ;; (add-to-list 'company-backends 'company-math-symbols-unicode)
   #+END_SRC
@@ -823,7 +823,7 @@
 
    What is olivetti-mode?
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (add-hook 'org-mode-hook '(lambda ()
                                 (setq left-margin-width 5)
@@ -835,7 +835,7 @@
 
   This is my agenda files
   
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (setq org-agenda-files (list
 			    (concat org-directory "/movie.org")
@@ -849,7 +849,7 @@
 
 ** Keybindings
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "C-c a") 'org-agenda)
     (define-key org-mode-map (kbd "M-RET") 'org-insert-heading)
@@ -863,7 +863,7 @@
   
 **  org-trello sutff
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (require 'org-trello)
 
@@ -876,7 +876,7 @@
    
    For working with C/C++/D source code
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (org-babel-do-load-languages
       'org-babel-load-languages '((C . t)))
@@ -885,7 +885,7 @@
 
 ** Hylang
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'ob-hy)
      (org-babel-do-load-languages
@@ -896,7 +896,7 @@
    
    Shoot dosbox and insert
    
-   #+NAME: Screenshot
+    Screenshot
    #+BEGIN_SRC emacs-lisp 
      (defun insert-shot ()
        (interactive)
@@ -923,7 +923,7 @@
 
    auto crypt org files using EasyPG
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (require 'org-crypt)
      (org-crypt-use-before-save-magic)
@@ -931,7 +931,7 @@
 
 ** Org capture
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (setq org-default-notes-file (expand-file-name "~/notes.org"))
    #+END_SRC
@@ -940,7 +940,7 @@
    
    mu4e, get email form name
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun org-contacts-mu4e-get-name-email ()
        "Get name and email address from Gnus message."
@@ -953,7 +953,7 @@
 
    Org contacts phone number template:
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun org-contacts-template-phone (&optional return-value)
        "Try to return the contact phne for a template.
@@ -966,7 +966,7 @@
 
    org-capture contacts template:
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (add-to-list 'org-capture-templates
 		  `("c" "Contacts" entry (file ,(concat org-directory "/people.org"))
@@ -980,7 +980,7 @@
 
    Capture web content
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (add-to-list 'org-capture-templates
 		  `("w" "Web site" entry
@@ -990,7 +990,7 @@
 
    todo template
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (add-to-list 'org-capture-templates
 		  `("t" "Todo" entry (file ,(concat org-directory "/tasks.org"))
@@ -1001,7 +1001,7 @@
 
    Capture web bookmarks
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (add-to-list 'org-capture-templates
 		 `("b" "Web site bookmark" entry
@@ -1023,7 +1023,7 @@
     Org protocol stuff
 
 
-    #+NAME: 
+     
     #+BEGIN_SRC emacs-lisp 
       (server-start)
       (require 'org-protocol)
@@ -1032,7 +1032,7 @@
 
     template
 
-    #+NAME: 
+     
     #+BEGIN_SRC emacs-lisp
 
       (add-to-list 'org-capture-templates 
@@ -1047,7 +1047,7 @@
    
    Set org contact files
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (require 'org-contacts)
      (setq  org-contacts-files `(,(concat org-directory "/people.org")))
@@ -1057,7 +1057,7 @@
    set org 
 
 ** Latex export code stuff
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (setq ;; org-latex-listings 'minted
            org-latex-packages-alist '(("" "minted"))
@@ -1069,7 +1069,7 @@
    
 ** Custom faces
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (custom-set-faces
       '(org-block ((t (:height 1.3)))))
@@ -1078,7 +1078,7 @@
 
   zpresent is what I use for presentations
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'ox-reveal)
 
@@ -1086,7 +1086,7 @@
   #+END_SRC
   
   This needs xwidget support
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'bodil-revealjs)
   #+END_SRC
@@ -1095,14 +1095,14 @@
 
 ** Javascript
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
    #+END_SRC
 
    Allow not ending with semi-colon 
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (setq js2-strict-missing-semi-warning nil)
    #+END_SRC
@@ -1110,7 +1110,7 @@
 ** Common Lisp
    set inferior lisp program.
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (setq inferior-lisp-program "sbcl"
 	   slime-contribs '(slime-fancy))
@@ -1124,7 +1124,7 @@
    
    I'm a heavy python user, but my config is less than 2 instructions, which is great since elpy offers tons of things out of the box
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (elpy-enable)
 
@@ -1139,7 +1139,7 @@
 
    Setting compile command and recompile key
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
        
      (add-hook 'c++-mode-hook (lambda ()
@@ -1152,7 +1152,7 @@
 
    I mainly do vuejs, I use ES6, but I use js-mode not js2-mode since MMM-mode doesn't seem to support it.
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'vue-mode)
      (require 'emmet-mode)
@@ -1171,7 +1171,7 @@
    
    Enable show-paren and paredit for Emacs lisp code
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (add-hook 'emacs-lisp-mode-hook (lambda ()
                                        (show-paren-mode 1)
@@ -1181,7 +1181,7 @@
 
 ** Hylang
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (require 'hy-mode)
      (add-hook 'hy-mode-hook (lambda ()
@@ -1194,7 +1194,7 @@
 
   I use the pomodoro technique when working on writing or programming projects
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'pomodoro) 
     (pomodoro-add-to-mode-line)
@@ -1206,7 +1206,7 @@
   Some stuff to prettify
 
 ** Prog-mode
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (global-prettify-symbols-mode 1)
      (add-hook 'prog-mode-hook
@@ -1227,7 +1227,7 @@
 
 ** Python-mode
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (add-hook 'python-mode-hook
                (lambda ()
@@ -1240,13 +1240,13 @@
 
 ** Unprettify at point
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (setq prettify-symbols-unprettify-at-point t)
    #+END_SRC
 * Projectile
   
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (require 'projectile)
 
@@ -1256,7 +1256,7 @@
 
   use grep only on files tracked by git
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (setq projectile-use-git-grep 1)
 
@@ -1264,7 +1264,7 @@
 
   enable helm-projectile
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'helm-projectile)
     (helm-projectile-on)
@@ -1272,7 +1272,7 @@
 
 * Elfeed
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'elfeed)
 
@@ -1287,7 +1287,7 @@
   
   I use magit and magithub to work with github
   
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp
     (require 'magit)
     (require 'magithub)
@@ -1302,14 +1302,14 @@
   
 * Images
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (require 'image+)
   #+END_SRC
 
   hydra stuff
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp  
     (eval-after-load 'image+
       `(when (require 'hydra nil t)
@@ -1324,7 +1324,7 @@
 	   ("l" imagex-sticky-rotate-left "rotate left"))))
   #+END_SRC
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp 
     (imagex-global-sticky-mode 1)
   #+END_SRC
@@ -1333,7 +1333,7 @@
 
   First require key chord
 
-  #+NAME: 
+   
   #+BEGIN_SRC emacs-lisp 
     (require 'key-chord)
     (key-chord-mode +1)
@@ -1344,7 +1344,7 @@
 
    from bastov's blog
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (defun switch-to-previous-buffer ()
        "Switch to previously open buffer.
@@ -1357,14 +1357,14 @@
   
 ** Find file
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (key-chord-define-global "FF" 'helm-find-files)
    #+END_SRC
 
 ** Beginning and end of buffer
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (key-chord-define-global "jk" 'beginning-of-buffer)
      (key-chord-define-global "JK" 'end-of-buffer)
@@ -1375,7 +1375,7 @@
 
    Functions to replicate the Vim feature to increment and decrement number at point.
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun number-at-point (fn)
        (skip-chars-backward "0-9")
@@ -1401,7 +1401,7 @@
 
    Sometimes I like to use my mouse for stuff
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (global-set-key [C-mouse-4] 'text-scale-increase)
      (global-set-key [C-mouse-5] 'text-scale-decrease)
@@ -1410,7 +1410,7 @@
 ** Resize window interactively
    Resize windows in speed, I use resize-window it is not position aware, meaning if I'm in the bottom most window it isn't as natural as if resize from the left most window, this happens also in i3wm so I think it's normal, also I don't think it's hard to implement so I would love to see this feature.
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (require 'resize-window)
      (global-set-key (kbd "C-c ;") 'resize-window)
@@ -1421,7 +1421,7 @@
 
    This just returns to the previous window configuration, sadly it doesn't work as excepted when using perspective mode, I hope it gets fixed though
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (winner-mode 1)
 
@@ -1429,7 +1429,7 @@
    
 ** yas
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
        
      (yas-global-mode 1)
@@ -1438,7 +1438,7 @@
 
 ** highlight parentheses
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      ;; (global-highlight-parentheses-mode 1)
 
@@ -1449,7 +1449,7 @@
    
    This package is very helpful to navigate code, it's most helpful in languages that use S-expressions which are mainly lisps, but it also works with C and Javascript
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'expand-region)
      (global-set-key (kbd "C-c =") 'er/expand-region)
@@ -1458,7 +1458,7 @@
 
 ** ace-jump mode
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'ace-jump-mode)
      (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
@@ -1470,7 +1470,7 @@
 
    just recreates scratch buffer when it's killed, I got this from the EmacsWiki
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (with-current-buffer "*scratch*"
        (lisp-interaction-mode)
@@ -1497,7 +1497,7 @@
 
    Save backups in another directory
 
-   #+NAME: 
+    
 
    #+BEGIN_SRC emacs-lisp  
      (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
@@ -1514,7 +1514,7 @@
 
    sets my default web browser
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (setq browse-url-browser-function 'browse-url-generic
            browse-url-generic-program "icecat")
@@ -1525,7 +1525,7 @@
    
    I got this from sacha chua's config which she got from crux package I think 
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (defun my/smarter-move-beginning-of-line (arg)
        "Move point back to indentation of beginning of line.
@@ -1562,7 +1562,7 @@
 
    Adds timestamp before saving each file
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (add-hook 'before-save-hook 'time-stamp)
 
@@ -1572,7 +1572,7 @@
 
    Use tramp to edit files with root, I got this from bbastov blog
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun sudo-edit (&optional arg)
        "Edit currently visited file as root.
@@ -1589,7 +1589,7 @@
 
 ** Company mode
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'company)
      (add-hook 'after-init-hook 'global-company-mode)
@@ -1599,7 +1599,7 @@
 ** Terminal stuff
    Stuff I use when I run Emacs in a terminal emulator
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (define-key input-decode-map "\e[1;2A" [S-up])
      (define-key input-decode-map "\e[1;2B" [S-down])
@@ -1617,7 +1617,7 @@
 
 ** Scratch message
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (setq initial-scratch-message ";; ╔═╗┌─┐┬─┐┌─┐┌┬┐┌─┐┬ ┬\n;; ╚═╗│  ├┬┘├─┤ │ │  ├─┤\n;; ╚═╝└─┘┴└─┴ ┴ ┴ └─┘┴ ┴\n\n")
      (setq inhibit-startup-screen t)
@@ -1628,7 +1628,7 @@
 
    auto update proced
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defun proced-settings ()
        (proced-toggle-auto-update 1))
@@ -1640,7 +1640,7 @@
    
    Hide some minor modes
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (defvar hidden-minor-modes
 
@@ -1672,7 +1672,7 @@
    
    This is like ace-jump but for windows
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (require 'ace-window)
      (global-set-key (kbd "C-x o") 'ace-window)
@@ -1681,21 +1681,21 @@
 
    styling the leading char
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (set-face-attribute 'aw-leading-char-face nil :height 400)
    #+END_SRC
    
    set scope to frame
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (setq aw-scope 'frame)
    #+END_SRC
    
 ** Flycheck
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'flycheck)
      (global-flycheck-mode 1)
@@ -1706,14 +1706,14 @@
 
    Some other packages I require
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'engine-search)
    #+END_SRC
 
 ** Windmove
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (global-set-key (kbd "S-<up>") 'windmove-up)
      (global-set-key (kbd "S-<down>") 'windmove-down)
@@ -1723,7 +1723,7 @@
 
 ** Startup
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
       (switch-to-buffer "*scratch*")
    #+END_SRC   
@@ -1733,7 +1733,7 @@
 
    You need the say program (it comes with GNUstep).
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp  
      (require 'tea-time)
      (setq tea-time-sound-command "espeak -vde+f5  \"Es ist teezeit mein Kapitän\"")
@@ -1743,7 +1743,7 @@
 ** Multi term
    This will toggle and select a dedicated multi term buffer.
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (global-set-key (kbd "C-c x") (lambda ()
                                      (interactive)
@@ -1754,7 +1754,7 @@
 
    Add =term-line-mode= and =char-line-mode= keybindings
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (eval-after-load 'multi-term
        `(setq term-bind-key-alist
@@ -1764,7 +1764,7 @@
    #+END_SRC
 ** Cursor stuff
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (blink-cursor-mode -1)
      (setq-default cursor-type 'box)
@@ -1776,7 +1776,7 @@
    In the evening I just use a dark theme like most people do
 
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp
      (defvar *last-theme* dark-theme
        "The last recorded theme")
@@ -1795,13 +1795,13 @@
    #+END_SRC
 ** Paredit stuff
    
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (define-key paredit-mode-map (kbd "{") 'paredit-open-curly)
    #+END_SRC
 ** Hl line mode
 
-   #+NAME: 
+    
    #+BEGIN_SRC emacs-lisp 
      (global-hl-line-mode 1)
    #+END_SRC
