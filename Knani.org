@@ -291,6 +291,18 @@
    #+END_SRC
 
 
+** Dired subtree
+   
+   This requires dired-hacks-utils
+
+   #+NAME: 
+   #+BEGIN_SRC emacs-lisp  
+     (require 'dired-subtree)
+
+     (define-key dired-mode-map "i" 'dired-subtree-insert)
+     (define-key dired-mode-map ";" 'dired-subtree-remove)
+   #+END_SRC
+
 ** Some other stuff
    
    Some other stuff like dwim and dired-fixups
