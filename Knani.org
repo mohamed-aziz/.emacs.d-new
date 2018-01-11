@@ -1627,20 +1627,20 @@
    
    #+NAME: 
    #+BEGIN_SRC emacs-lisp
-     (defvar *last-theme* 'tao-yin
+     (defvar *last-theme* dark-theme
        "The last recorded theme")
 
      (defun flip-theme ()
        (interactive)
-       (if (eq 'silkworm *last-theme*)
+       (if (eq light-theme *last-theme*)
 	   (progn
-	     (setq *last-theme* 'tao-yin)
-	     (disable-theme 'silkworm)
-	     (load-theme 'tao-yin))
+	     (setq *last-theme* dark-theme)
+	     (disable-theme light-theme)
+	     (load-theme dark-theme))
 	 (progn
-	   (disable-theme 'tao-yin)
-	   (setq *last-theme* 'silkworm)
-	   (load-theme 'silkworm))))
+	   (disable-theme dark-theme)
+	   (setq *last-theme* light-theme)
+	   (load-theme light-theme))))
    #+END_SRC
 ** Paredit stuff
    
