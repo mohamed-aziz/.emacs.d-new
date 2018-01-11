@@ -2,6 +2,7 @@
 #+AUTHOR: Mohamed Aziz Knani
 #+BABEL: :cache yes
 #+PROPERTY: header-args :tangle init.el :results output silent
+#+EXPORT_FILE_NAME: /home/mo/code/mohamed-aziz.github.io/emacs.html
 
 
 * Introduction
