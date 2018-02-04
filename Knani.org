@@ -8,28 +8,22 @@
 * Introduction
 
   I like very much the idea of [[https://en.wikipedia.org/wiki/Literate_programming][literate programming]], it appears that Org-mode in Emacs shines in doing this, the code here is tangled into an emacs lisp file and loaded by emacs, I also weave it into an html file and post it on my website.
-  
-  I don't recommend that you use this, I encourage you to craft your own Emacs configuration, since I make a lot of decision here that you might not like.
 
-  BTW this is a very small config it's less than 600 lines of code.
+  I suggest you start with a starter kit like bbastov's prelude not with mine since I make some decision you might not like.
 
-  You can download the configuration by doing:
+  First backup your old configuration
 
-   
-  #+BEGIN_SRC sh :tangle no  
-    git clone https://github.com/mohamed-aziz/.emacs.d-new.git
+  #+BEGIN_SRC sh :tangle no
+    mv ~/.emacs.d ~/.emacs.d-back
   #+END_SRC
 
-  Don't like using org? just revert to this commit =79d3e805a9868adf45877733b5422b260fafa971= .
-
-  Then you just do
-
+  Then can download my config doing:
    
   #+BEGIN_SRC sh :tangle no  
-    mv .emacs.d-new ~/.emacs.d 
+    git clone https://github.com/mohamed-aziz/.emacs.d-new.git ~/.emacs.d
   #+END_SRC
   
-  Than install all the dependencies.
+  Then install all the dependencies, for now I have no automated way of doing this.
 
   In the beginning this must be found in your init.el, this will just tangle =Knani.org=, reload =init.el= and byte compile it.
 
@@ -113,7 +107,7 @@
     
    #+BEGIN_SRC emacs-lisp 
      (defconst dark-theme 'tao-yin)
-     (defconst light-theme 'plan9)
+     (defconst light-theme 'leuven)
    #+END_SRC
       
    
@@ -329,26 +323,28 @@
     (require 'erc)
     (require 'erc-log)
 
-    ;; where to log
     (setq erc-log-channels-directory "~/.erc/logs/")
-
     (erc-truncate-mode +1)
-
     (erc-spelling-mode 1)
-
-    ;; use unicode always
     (setq erc-server-coding-system '(utf-8 . utf-8))
-
-
-    ;; channels to automatically join to
-    (setq erc-autojoin-channels-alist '(("freenode.net" "#python"
-                                         "#python-eve"
-                                         "#pocoo"
-                                         "#emacs"
-                                         "#gnu"
-                                         "#django"
-                                         "##programming")))
+    (setq erc-autojoin-channels-alist '(("freenode.net" . ("#python"
+							       "#python-eve"
+							       "#pocoo"
+							       "#emacs"
+							       "#gnu"
+							       "#django"
+							       "#crypto"
+							       "##programming"))
+					("oftc.net" . ("#suckless"
+							   "#debian"))))
   #+END_SRC
+** Hide from mode-line
+
+   #+BEGIN_SRC emacs-lisp
+     (erc-track-mode nil)
+     (setq  erc-track-position-in-mode-line nil
+	    erc-mode-line-format "")
+   #+END_SRC
 
 * Eshell
   
@@ -379,7 +375,6 @@
    
   #+BEGIN_SRC emacs-lisp  
     (require 'mu4e)
-
   #+END_SRC
 
   set the mail directory
@@ -387,7 +382,6 @@
    
   #+BEGIN_SRC emacs-lisp  
   (setq mu4e-maildir (expand-file-name "~/Maildir"))
-
   #+END_SRC
 
   load file with email configuration
@@ -404,14 +398,12 @@
     (setq mu4e-user-mail-address-list
           (mapcar (lambda (account) (cadr (assq 'user-mail-address account)))
                   my/mu4e-account-alist))
-
   #+END_SRC
 
 
    
   #+BEGIN_SRC emacs-lisp 
     (setq mu4e-sent-messages-behavior 'delete)
-
   #+END_SRC  
 
   update mail using offlineimap
@@ -538,6 +530,14 @@
 	   message-send-mail-function 'async-smtpmail-send-it)
    #+END_SRC
 
+** Disable duplicates
+
+   This happens with gmail and offlineimap
+
+   #+BEGIN_SRC emacs-lisp
+     (setq mu4e-headers-skip-duplicates t)
+   #+END_SRC
+
 ** Multiple mail
    
    I use multiple mail accounts
@@ -581,8 +581,6 @@
                          (set (car var) (cadr var)))
                      account-vars)
              (error "No email account found")))))
-
-
    #+END_SRC
    
 
@@ -601,7 +599,6 @@
            (when message-signature
              (message-insert-signature)))))
      (add-hook 'mu4e-compose-mode-hook 'my/mu4e-execute-account-vars)
-
    #+END_SRC
 
 
@@ -622,7 +619,6 @@
 
     (setq persp-initial-frame-name "dev")
     (persp-mode t)
-
   #+END_SRC
 
   
@@ -655,7 +651,6 @@
        (proced)
        (delete-other-windows)
        (switch-to-buffer "*Proced*"))
-
    #+END_SRC
    
 ** Show only current perspective
@@ -674,7 +669,6 @@
 		     (append open (list (persp-format-name (persp-name persp-curr)))
 			     close))
 	     (setq persp-modestring nil)))))
-
    #+END_SRC
 
 * Music
@@ -686,11 +680,23 @@
     (require 'emms-setup)
     (emms-standard)
     (emms-default-players)
+    ;; fallback to mplayer
     (define-emms-simple-player mplayer '(file url)
       (regexp-opt '(".ogg" ".mp3" ".wav" ".mpg" ".mpeg" ".wmv" ".wma" ".webm"
 		    ".mov" ".avi" ".divx" ".ogm" ".asf" ".mkv" "http://" "mms://"
+		    ".aiff"
 		    ".rm" ".rmvb" ".mp4" ".flac" ".vob" ".m4a" ".flv" ".ogv" ".pls" ".opus"))
       "mplayer" "-slave" "-quiet" "-really-quiet" "-fullscreen")
+      
+    (define-emms-simple-player mpv '(file url streamlist playlist)
+      (concat "\\`\\(http\\|mms\\)://\\|"
+	      (emms-player-simple-regexp
+	       "ogg" "mp3" "wav" "mpg" "mpeg" "wmv" "wma"
+	       "mov" "avi" "divx" "ogm" "ogv" "asf" "mkv"
+	       "rm" "rmvb" "mp4" "flac" "vob" "m4a" "ape"
+	       "flv" "webm" "m4b" "m4p" "m4v" "m4r" "3gp"
+	       "aac" "aiff"))
+      "mpv" "--quiet" "--really-quiet")
 
     (require 'emms-player-mpv)
     (add-to-list 'emms-player-list 'emms-player-mpv)
@@ -703,7 +709,6 @@
     (global-set-key [(f7)] 'emms-smart-browse)
 
     (setq emms-source-file-default-directory "~/Music/")
-
   #+END_SRC
 
   I also have this in my mpv configuration
@@ -729,7 +734,6 @@
 
     
    #+BEGIN_SRC emacs-lisp
-
      (defun my-emms-covers (dir type)
        "Choose album cover in DIR deppending on TYPE.
      Small cover should be less than 80000 bytes.
@@ -795,7 +799,6 @@
    
   #+BEGIN_SRC emacs-lisp
     (require 'org)
-
   #+END_SRC
 
   What to record when a task is marked done
@@ -810,15 +813,15 @@
    
   #+BEGIN_SRC emacs-lisp
     (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-
   #+END_SRC
 
   For easier math symbols input for latex
 
    
-  #+BEGIN_SRC emacs-lisp
-    ;; (add-to-list 'company-backends 'company-math-symbols-unicode)
-  #+END_SRC
+** Org-tangle disable confirmation
+   #+BEGIN_SRC emacs-lisp
+     (setq  org-confirm-babel-evaluate nil)
+   #+END_SRC
 ** Some eye candy stuff
 
    What is olivetti-mode?
@@ -830,7 +833,6 @@
                                 (setq right-margin-width 5)
                                 (visual-line-mode)
                                 (flyspell-mode)))
-
   #+END_SRC
 
   This is my agenda files
@@ -840,11 +842,12 @@
     (setq org-agenda-files (list
 			    (concat org-directory "/movie.org")
 			    (concat org-directory "/websites.org")
+			    (concat org-directory "/bookmarks.org")
 			    (concat org-directory "/mylife.org")
 			    (concat org-directory "/tasks.org")
 			    (concat org-directory "/notes.org")))
     (setq org-agenda-text-search-extra-files
-	  '("~/org/bookmarks.org"))
+	  `(,(concat org-directory "/tip.org")))
   #+END_SRC
 
 ** Keybindings
@@ -869,7 +872,6 @@
 
      (setq org-trello-files
 	   `(,(concat org-directory "/work.org")))
-
    #+END_SRC
    
 ** C/C++
@@ -879,8 +881,9 @@
     
    #+BEGIN_SRC emacs-lisp  
      (org-babel-do-load-languages
-      'org-babel-load-languages '((C . t)))
-
+      'org-babel-load-languages '((C . t)
+				  (shell . t)
+				  (python . t)))
    #+END_SRC
 
 ** Hylang
@@ -890,11 +893,10 @@
      (require 'ob-hy)
      (org-babel-do-load-languages
       'org-babel-load-languages '((hy . t)))
-
    #+END_SRC
 ** Shoot and insert
    
-   Shoot dosbox and insert
+   Utility function I use to take a screenshot of a dosbox window and then inserting the image in a org-mode buffer.
    
     Screenshot
    #+BEGIN_SRC emacs-lisp 
@@ -914,9 +916,7 @@
 
      [[file:%s]]" filename))))
 
-
      (define-key org-mode-map (kbd "<f8>") 'insert-shot)
-
    #+END_SRC
    
 ** Org crypt
@@ -948,7 +948,6 @@
 	   (gnus-with-article-headers
 	     (mail-extract-address-components
 	      (or (mail-fetch-field "From") "")))))
-
    #+END_SRC
 
    Org contacts phone number template:
@@ -961,7 +960,6 @@
        (or (cadr (org-contacts-gnus-get-name-email))
 	   return-value
 	   (concat "%^{PHONE}p")))
-
    #+END_SRC
 
    org-capture contacts template:
@@ -995,7 +993,6 @@
      (add-to-list 'org-capture-templates
 		  `("t" "Todo" entry (file ,(concat org-directory "/tasks.org"))
 		    "* TODO %?\n  %i\n  %a"))
-
    #+END_SRC
 
 
@@ -1131,19 +1128,20 @@
      (elpy-enable)
 
      (setenv "WORKON_HOME" "/home/mo/vEnvs/")
-
-
    #+END_SRC
-
-
-   
+** C   
+*** Cflow
+    #+BEGIN_SRC emacs-lisp
+      (autoload 'cflow-mode "cflow-mode")
+      (setq auto-mode-alist (append auto-mode-alist
+				    '(("\\.cflow$" . cflow-mode))))
+    #+END_SRC
 ** C++
 
    Setting compile command and recompile key
 
     
-   #+BEGIN_SRC emacs-lisp 
-       
+   #+BEGIN_SRC emacs-lisp        
      (add-hook 'c++-mode-hook (lambda ()
                                (when (buffer-file-name)
                                  (setq compile-command (concat "g++ -g " (buffer-file-name))))))
@@ -1165,8 +1163,6 @@
      (add-hook 'vue-mode-hook 'emmet-mode)
      (add-hook 'css-mode-hook 'emmet-mode)
      (add-hook 'web-mode-hook 'emmet-mode)
-
-
    #+END_SRC
 
 ** Elisp
@@ -1178,7 +1174,6 @@
      (add-hook 'emacs-lisp-mode-hook (lambda ()
                                        (show-paren-mode 1)
                                        (paredit-mode 1)))
-
    #+END_SRC
 
 ** Hylang
@@ -1200,7 +1195,6 @@
   #+BEGIN_SRC emacs-lisp  
     (require 'pomodoro) 
     (pomodoro-add-to-mode-line)
-
   #+END_SRC
 
 * Prettify symbols
@@ -1224,7 +1218,6 @@
                  (push '("theta"   . ?θ) prettify-symbols-alist)
                  (push '("pi"      . ?π) prettify-symbols-alist)
                  (push '("sqrt"    . ?√) prettify-symbols-alist)))
-
    #+END_SRC
 
 ** Python-mode
@@ -1252,8 +1245,7 @@
   #+BEGIN_SRC emacs-lisp
     (require 'projectile)
 
-    (projectile-mode 1)
-    
+    (projectile-mode 1)    
   #+END_SRC
 
   use grep only on files tracked by git
@@ -1371,6 +1363,13 @@
      (key-chord-define-global "jk" 'beginning-of-buffer)
      (key-chord-define-global "JK" 'end-of-buffer)
    #+END_SRC
+
+   
+** Ace-jump
+
+   #+BEGIN_SRC emacs-lisp
+     (key-chord-define-global "jj" 'ace-jump-mode)
+   #+END_SRC
 * Other
 
 ** Increment and decrements numbers
@@ -1396,7 +1395,6 @@
 
      (global-set-key (kbd "C-c +") 'increment-number-at-point)
      (global-set-key (kbd "C-c -") 'decrement-number-at-point)
-
    #+END_SRC
    
 ** To "zoom" in and out using mouse
@@ -1407,7 +1405,6 @@
    #+BEGIN_SRC emacs-lisp  
      (global-set-key [C-mouse-4] 'text-scale-increase)
      (global-set-key [C-mouse-5] 'text-scale-decrease)
-
    #+END_SRC
 ** Resize window interactively
    Resize windows in speed, I use resize-window it is not position aware, meaning if I'm in the bottom most window it isn't as natural as if resize from the left most window, this happens also in i3wm so I think it's normal, also I don't think it's hard to implement so I would love to see this feature.
@@ -1416,7 +1413,6 @@
    #+BEGIN_SRC emacs-lisp
      (require 'resize-window)
      (global-set-key (kbd "C-c ;") 'resize-window)
-
    #+END_SRC
 
 ** Winner
@@ -1426,25 +1422,13 @@
     
    #+BEGIN_SRC emacs-lisp  
      (winner-mode 1)
-
    #+END_SRC
    
 ** yas
 
     
-   #+BEGIN_SRC emacs-lisp  
-       
+   #+BEGIN_SRC emacs-lisp         
      (yas-global-mode 1)
-
-   #+END_SRC
-
-** highlight parentheses
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     ;; (global-highlight-parentheses-mode 1)
-
-
    #+END_SRC
 
 ** expand region
@@ -1455,7 +1439,6 @@
    #+BEGIN_SRC emacs-lisp  
      (require 'expand-region)
      (global-set-key (kbd "C-c =") 'er/expand-region)
-
    #+END_SRC
 
 ** ace-jump mode
@@ -1465,7 +1448,6 @@
      (require 'ace-jump-mode)
      (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
      (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
-
    #+END_SRC
 
 ** Recreate scratch buffer
@@ -1492,7 +1474,6 @@
        (add-hook 'kill-buffer-query-functions 'kill-scratch-buffer)
        ;; Since we killed it, don't let caller do that.
        nil)
-
    #+END_SRC
 
 ** Backups
@@ -1520,7 +1501,6 @@
    #+BEGIN_SRC emacs-lisp  
      (setq browse-url-browser-function 'browse-url-generic
            browse-url-generic-program "icecat")
-
    #+END_SRC
 
 ** Smarter beginning of line
@@ -1555,8 +1535,6 @@
      ;; remap C-a to `smarter-move-beginning-of-line'
      (global-set-key [remap move-beginning-of-line]
                      'my/smarter-move-beginning-of-line)
-
-
    #+END_SRC
 
    
@@ -1567,7 +1545,6 @@
     
    #+BEGIN_SRC emacs-lisp  
      (add-hook 'before-save-hook 'time-stamp)
-
    #+END_SRC
 
 ** Tramp sudo edit
@@ -1586,7 +1563,6 @@
            (find-file (concat "/sudo:root@localhost:"
                               (ido-read-file-name "Find file(as root): ")))
          (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
-
    #+END_SRC
 
 ** Company mode
@@ -1595,7 +1571,6 @@
    #+BEGIN_SRC emacs-lisp  
      (require 'company)
      (add-hook 'after-init-hook 'global-company-mode)
-
    #+END_SRC
 
 ** Terminal stuff
@@ -1612,7 +1587,6 @@
      (custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
      ;; to avoid delay in terminal
      (setq-default xterm-query-timeout nil)
-
    #+END_SRC
 
    This needs xclip installed on the machine to facilitate copying and pasting between Emacs and other X windows.
@@ -1623,7 +1597,6 @@
    #+BEGIN_SRC emacs-lisp  
      (setq initial-scratch-message ";; ╔═╗┌─┐┬─┐┌─┐┌┬┐┌─┐┬ ┬\n;; ╚═╗│  ├┬┘├─┤ │ │  ├─┤\n;; ╚═╝└─┘┴└─┴ ┴ ┴ └─┘┴ ┴\n\n")
      (setq inhibit-startup-screen t)
-
    #+END_SRC
 
 ** Proced
@@ -1634,8 +1607,6 @@
    #+BEGIN_SRC emacs-lisp  
      (defun proced-settings ()
        (proced-toggle-auto-update 1))
-
-
    #+END_SRC
 
 ** Hide some minor modes
@@ -1667,7 +1638,6 @@
 	 (diminish x)))
 
      (add-hook 'after-change-major-mode-hook 'purge-minor-modes)
-
    #+END_SRC
 
 ** ace-window
@@ -1678,7 +1648,6 @@
    #+BEGIN_SRC emacs-lisp
      (require 'ace-window)
      (global-set-key (kbd "C-x o") 'ace-window)
-
    #+END_SRC
 
    styling the leading char
@@ -1701,7 +1670,6 @@
    #+BEGIN_SRC emacs-lisp  
      (require 'flycheck)
      (global-flycheck-mode 1)
-
    #+END_SRC
 
 ** require engine-search
@@ -1768,7 +1736,7 @@
 
     
    #+BEGIN_SRC emacs-lisp
-     (blink-cursor-mode -1)
+     (blink-cursor-mode t)
      (setq-default cursor-type 'box)
    #+END_SRC
 ** Flip theme function
@@ -1807,4 +1775,10 @@
    #+BEGIN_SRC emacs-lisp 
      (global-hl-line-mode 1)
    #+END_SRC
-** Authinfo order
+** Enable pdf-tools
+   
+   This replaces docview, it has faster rendering capabilities.
+
+   #+BEGIN_SRC emacs-lisp
+     (pdf-tools-install)
+   #+END_SRC
