@@ -129,6 +129,12 @@
 
    #+END_SRC
 
+   Set no-fringes mode
+
+   #+BEGIN_SRC emacs-lisp
+     (set-fringe-style '(0 . 0))
+   #+END_SRC
+
 ** Add load paths
 
    #+BEGIN_SRC emacs-lisp
@@ -348,6 +354,24 @@
 
 * Eshell
   
+** Background makes
+   from emacswiki
+
+   #+BEGIN_SRC emacs-lisp
+     (defun eshell/ec (&rest args)
+       "Use `compile' to do background makes."
+       (if (eshell-interactive-output-p)
+	   (let ((compilation-process-setup-function
+		  (list 'lambda nil
+			(list 'setq 'process-environment
+			      (list 'quote (eshell-copy-environment))))))
+	     (compile (eshell-flatten-and-stringify args))
+	     (pop-to-buffer compilation-last-buffer))
+	 (throw 'eshell-replace-command
+		(let ((l (eshell-stringify-list (eshell-flatten-list args))))
+		  (eshell-parse-command (car l) (cdr l))))))
+     (put 'eshell/ec 'eshell-no-numeric-conversions t)
+   #+END_SRC
 ** Pyvenv integration
 
    Integration of pyvenv within Eshell
@@ -837,17 +861,10 @@
 
   This is my agenda files
   
-   
+  Org personal files:
+
   #+BEGIN_SRC emacs-lisp
-    (setq org-agenda-files (list
-			    (concat org-directory "/movie.org")
-			    (concat org-directory "/websites.org")
-			    (concat org-directory "/bookmarks.org")
-			    (concat org-directory "/mylife.org")
-			    (concat org-directory "/tasks.org")
-			    (concat org-directory "/notes.org")))
-    (setq org-agenda-text-search-extra-files
-	  `(,(concat org-directory "/tip.org")))
+    (load-file (expand-file-name "~/orgfiles.el"))
   #+END_SRC
 
 ** Keybindings

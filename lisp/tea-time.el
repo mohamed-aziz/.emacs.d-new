@@ -66,13 +66,10 @@
 
 
 ;; That's all.
-
-;;; TODO
-;; - What if I want to enter seconds/hours as well?
-
 ;;; Code:
 
 ;; Origin comes from http://www.hack.org/mc/files/.emacs.el
+
 
 (defcustom tea-time-sound nil
   "sound that will play once timer is expired.
@@ -90,7 +87,7 @@ If you don't have alsa, it is better to be .wav file"
   "Command to run to play sounds."
   :group 'tea-time
   :type 'string
-)
+  )
 
 (defvar tea-time-notification-hook nil
   "Hook run when tea is ready"
@@ -102,8 +99,7 @@ Store current timer in a global variable."
   (interactive)
   (run-at-time sec nil (lambda (seconds)
 			 (tea-time-show-notification (format "Time is up! %d minutes" (/ seconds 60)))
-			 (tea-time-play-sound)
-			 ) sec))
+			 (tea-time-play-sound)) sec))
 
 (defun tea-time-play-sound ()
   "Play sound"
@@ -111,22 +107,17 @@ Store current timer in a global variable."
       (if tea-time-sound-command
 	  (start-process-shell-command "tea-ready" nil (format tea-time-sound-command tea-time-sound))
 	(play-sound-file tea-time-sound))
-    (progn (beep t) (beep t)))
-  )
+    (progn (beep t) (beep t))))
 
 (defun tea-show-remaining-time ()
   "Show how much time is left. If timer is not started - say it."
   (interactive)
   (if (not (tea-timer-is-active))
       (message "Timer is not yet started.")
-    (let* (
-	   (remaining-time (decode-time (time-subtract (timer--time tea-active-timer) (current-time))))
+    (let* ((remaining-time (decode-time (time-subtract (timer--time tea-active-timer) (current-time))))
 	   (remaining-seconds (nth 0 remaining-time))
-	   (remaining-minutes (nth 1 remaining-time))
-	   )
-      (message "%d min %d sec left" remaining-minutes remaining-seconds)
-      )
-    ))
+	   (remaining-minutes (nth 1 remaining-time)))
+      (message "%d min %d sec left" remaining-minutes remaining-seconds))))
 
 (defun tea-timer-cancel ()
   (interactive)
@@ -135,25 +126,21 @@ Store current timer in a global variable."
       (progn
 	(print tea-active-timer)
 	(cancel-timer tea-active-timer)
-	(makunbound 'tea-active-timer)
-	)
-    ))
+	(cancel-timer tea-active-timer--modeline)
+	(makunbound 'tea-active-timer))))
 
 (defun tea-timer-is-active ()
   "Check if we have a running tea-timer."
-  (and (boundp 'tea-active-timer) (< (float-time) (float-time (timer--time tea-active-timer))))
-  )
+  (and (boundp 'tea-active-timer) (< (float-time) (float-time (timer--time tea-active-timer)))))
 
 (defun tea-update-modeline ()
   "docstring"
-  (let* (
-	 (remaining-time (decode-time (time-subtract (timer--time tea-active-timer) (current-time))))
+  (let* ((remaining-time (decode-time (time-subtract (timer--time tea-active-timer) (current-time))))
 	 (remaining-seconds (nth 0 remaining-time))
-	 (remaining-minutes (nth 1 remaining-time))
-	 )
+	 (remaining-minutes (nth 1 remaining-time)))
 
-    (setq tea-mode-line-string (format "[Tea] %d:%d" remaining-minutes remaining-seconds))
-    ))
+    (setq tea-mode-line-string (format " [Tea %d:%d]" remaining-minutes remaining-seconds))
+    (force-mode-line-update)))
 
 (defun tea-time (timeval)
   "Ask how long the tea should draw and start a timer.
@@ -166,22 +153,23 @@ Cancel prevoius timer, started by this function"
 	   (seconds (* minutes 60)))
       (progn
 	(setq global-mode-string
-		(delq 'tea-mode-line-string global-mode-string))
+	      (delq 'tea-mode-line-string global-mode-string))
 	(tea-timer-cancel)
  	(setq tea-active-timer (tea-timer seconds))
 	(add-to-list 'global-mode-string 'tea-mode-line-string t)
-	(run-at-time nil 1 'tea-update-modeline)
+	(setq tea-active-timer--modeline (run-at-time nil 1 'tea-update-modeline))
 	(add-hook 'tea-time-notification-hook (lambda ()
 						(setq global-mode-string
 						      (delq 'tea-mode-line-string global-mode-string))
-						))
-	
-	))))
+						(tea-timer-cancel)))))))
 
 (defun tea-time-show-notification (notification)
   "Show notification. Use mumbles."
-    (message notification)
-    (run-hooks 'tea-time-notification-hook))
+  (let ((notify-command (executable-find "notify-send")))
+    (print notify-command)
+    (if notify-command
+	(call-process-shell-command (concat notify-command " \"Tea is ready\"") nil 0)))
+  (run-hooks 'tea-time-notification-hook))
 
 (provide 'tea-time)
 ;;; tea-time.el ends here
