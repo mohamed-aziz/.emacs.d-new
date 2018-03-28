@@ -711,9 +711,9 @@
 		    ".aiff"
 		    ".rm" ".rmvb" ".mp4" ".flac" ".vob" ".m4a" ".flv" ".ogv" ".pls" ".opus"))
       "mplayer" "-slave" "-quiet" "-really-quiet" "-fullscreen")
-      
+
     (define-emms-simple-player mpv '(file url streamlist playlist)
-      (concat "\\`\\(http\\|mms\\)://\\|"
+      (concat "\\`\\(http\\|mms\\|tcp\\)://\\|"
 	      (emms-player-simple-regexp
 	       "ogg" "mp3" "wav" "mpg" "mpeg" "wmv" "wma"
 	       "mov" "avi" "divx" "ogm" "ogv" "asf" "mkv"
@@ -836,7 +836,13 @@
 
    
   #+BEGIN_SRC emacs-lisp
-    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.7))
+  #+END_SRC
+
+  setting program for rendering latex fragments
+
+  #+BEGIN_SRC emacs-lisp
+    (setq org-preview-latex-default-process 'dvisvgm)
   #+END_SRC
 
   For easier math symbols input for latex
@@ -1773,10 +1779,14 @@
        (if (eq light-theme *last-theme*)
 	   (progn
 	     (setq *last-theme* dark-theme)
+	     (custom-set-faces
+	      '(default ((t (:stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :family "dina")))))
 	     (disable-theme light-theme)
 	     (load-theme dark-theme))
 	 (progn
 	   (disable-theme dark-theme)
+	   (custom-set-faces
+	      '(default ((t (:stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :family "DejaVu Sans Mono")))))
 	   (setq *last-theme* light-theme)
 	   (load-theme light-theme))))
    #+END_SRC
@@ -1798,4 +1808,19 @@
 
    #+BEGIN_SRC emacs-lisp
      (pdf-tools-install)
+   #+END_SRC
+** Make prompts y or n
+   #+BEGIN_SRC emacs-lisp
+     (fset 'yes-or-no-p 'y-or-n-p)
+   #+END_SRC
+** Setting the executable directory for gtags
+
+   #+BEGIN_SRC emacs-lisp
+     (setq ggtags-executable-directory "/usr/bin")
+   #+END_SRC
+** Display current time
+   #+BEGIN_SRC emacs-lisp
+     (defun get-current-time ()
+       (interactive)
+       (message (format-time-string "%l:%M %b %d %a")))
    #+END_SRC
