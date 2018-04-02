@@ -1346,6 +1346,30 @@
     (imagex-global-sticky-mode 1)
   #+END_SRC
 
+* Study
+  
+** org-pdfview stuff
+   
+   #+BEGIN_SRC elisp
+     (require 'org-pdfview)
+   #+END_SRC
+
+   #+BEGIN_SRC elisp
+     (define-key pdf-view-mode-map
+       (kbd "C-c C-e") (lambda ()
+			 (interactive)
+			 (setq link (plist-get (org-pdfview-store-link) :link))
+			 (let ((win (get-window-with-predicate
+				     (lambda (window)
+				       (with-current-buffer (window-buffer window)
+					 (eq major-mode 'org-mode))))))
+
+			   (if win
+			       (progn
+				 (select-window win)
+				 (org-insert-link link link))))))
+   #+END_SRC
+
 * Key chord
 
   First require key chord
