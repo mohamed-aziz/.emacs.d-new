@@ -2,15 +2,14 @@
 #+AUTHOR: Mohamed Aziz Knani
 #+BABEL: :cache yes
 #+PROPERTY: header-args :tangle init.el :results output silent
-#+EXPORT_FILE_NAME: /home/mo/code/mohamed-aziz.github.io/emacs.html
 
 
 * Introduction
 
   I like very much the idea of [[https://en.wikipedia.org/wiki/Literate_programming][literate programming]], it appears that Org-mode in Emacs shines in doing this, the code here is tangled into an emacs lisp file and loaded by emacs, I also weave it into an html file and post it on my website.
 
-  I suggest you start with a starter kit like bbastov's prelude not with mine since I make some decision you might not like.
-
+  I suggest you start with a starter kit like bbatsov's prelude not with mine since I make some decision you might not like.
+ 
   First backup your old configuration
 
   #+BEGIN_SRC sh :tangle no
@@ -44,15 +43,6 @@
    #+END_SRC
    
 ** Package sources
-
-   Initialize package
-   
-    
-   #+BEGIN_SRC emacs-lisp 
-     (require 'package)
-     (package-initialize)
-   #+END_SRC
-
    
    If the system has gnutls use ssl.
 
@@ -106,8 +96,8 @@
    
     
    #+BEGIN_SRC emacs-lisp 
-     (defconst dark-theme 'tao-yin)
-     (defconst light-theme 'leuven)
+     (defconst dark-theme 'doom-one)
+     (defconst light-theme 'doom-one-light)
    #+END_SRC
       
    
@@ -117,9 +107,6 @@
 
      (when (> emacs-major-version 24)
        (scroll-bar-mode 0))
-
-     (add-hook 'after-init-hook (lambda ()
-				  (load-theme dark-theme)))
 
      ;; arabic font
      (when window-system
@@ -135,45 +122,76 @@
      (set-fringe-style '(0 . 0))
    #+END_SRC
 
+   Default font
+   
+   #+BEGIN_SRC emacs-lisp
+     (set-frame-font "DejaVu Sans Mono 11" nil t)
+   #+END_SRC
+
 ** Add load paths
 
    #+BEGIN_SRC emacs-lisp
      (add-to-list 'load-path
-                  (expand-file-name "lisp" user-emacs-directory))
-     (add-to-list 'load-path
-                  (expand-file-name "~/.local/usr/local/share/emacs/site-lisp/emms"))
+		  (expand-file-name "lisp" user-emacs-directory))
      (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
 
    #+END_SRC
 
-   
-* Helm
+
+* UI
   
-  Enable helm
+  
+** Beacon
+   
+   #+begin_src emacs-lisp
+     (require 'beacon)
+     (beacon-mode +1)
+   #+end_src
+
+** Doom
+
+   Doom mode-line
+
+   #+begin_src emacs-lisp
+     (require 'doom-modeline)
+     (doom-modeline-mode t)
+   #+end_src
+
+   #+begin_src emacs-lisp
+     (require 'doom-themes)
+     (load-theme 'doom-one t)
+     (doom-themes-visual-bell-config)
+   #+end_src
+
+* Ivy
+  
+  Enable Ivy
 
    
   #+BEGIN_SRC emacs-lisp
-    (require 'helm)
-    (helm-mode 1)
-  #+END_SRC
-  
-  Add some keybindings for helm.
-   
-  #+BEGIN_SRC emacs-lisp  
-    (global-set-key (kbd "M-x") #'helm-M-x)
-    (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
-    (global-set-key (kbd "C-x C-f") #'helm-find-files)
-  #+END_SRC
+    (require 'ivy)
 
-  show kill ring keybinding
-  
-   
-  #+BEGIN_SRC emacs-lisp 
-    (global-set-key (kbd "C-c y") '(lambda ()
-				     (interactive)
-				     (helm-show-kill-ring)))
+    (ivy-mode 1)t
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+    (global-set-key "\C-s" 'swiper)
+    (global-set-key (kbd "C-c C-r") 'ivy-resume)
+    (global-set-key (kbd "<f6>") 'ivy-resume)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "C-c g") 'counsel-git)
+    (global-set-key (kbd "C-c j") 'counsel-git-grep)
+    (global-set-key (kbd "C-c k") 'counsel-ag)
+    (global-set-key (kbd "C-x l") 'counsel-locate)
+    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
   #+END_SRC
-  
+    
 * Dired
 
    
@@ -260,12 +278,12 @@
 
    #+END_SRC
 
-   
+  
 ** Open with xdg-open
    
    This just lets me open files (or directories) with their default applications, it doesn't support windows though since I don't think that it has a facility to open files like that.
    
-   This is stolen from bbastov crux package
+   This is stolen from bbatsov's crux package
 
    #+BEGIN_SRC emacs-lisp
      (defun crux-open-with (arg)
@@ -274,16 +292,16 @@
      With a prefix ARG always prompt for command to use."
        (interactive "P")
        (let* ((current-file-name
-               (if (eq major-mode 'dired-mode)
-                   (dired-get-file-for-visit)
-                 buffer-file-name))
-              (open (pcase system-type
-                      (`darwin "open")
-                      ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
-              (program (if (or arg (not open))
-                           (read-shell-command "Open current file with: ")
-                         open)))
-         (call-process program nil 0 nil current-file-name)))
+	       (if (eq major-mode 'dired-mode)
+		   (dired-get-file-for-visit)
+		 buffer-file-name))
+	      (open (pcase system-type
+		      (`darwin "open")
+		      ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
+	      (program (if (or arg (not open))
+			   (read-shell-command "Open current file with: ")
+			 open)))
+	 (call-process program nil 0 nil current-file-name)))
 
    #+END_SRC
 
@@ -333,27 +351,54 @@
     (erc-truncate-mode +1)
     (erc-spelling-mode 1)
     (setq erc-server-coding-system '(utf-8 . utf-8))
-    (setq erc-autojoin-channels-alist '(("freenode.net" . ("#python"
-							       "#python-eve"
-							       "#pocoo"
-							       "#emacs"
-							       "#gnu"
-							       "#django"
-							       "#crypto"
-							       "##programming"))
+    (setq erc-autojoin-channels-alist '(("freenode.net" . (
+							   "#emacs"
+							   "#gnu"
+							   "#crypto"
+							   "##programming"))
 					("oftc.net" . ("#suckless"
-							   "#debian"))))
+					"#debian"))))
   #+END_SRC
-** Hide from mode-line
-
+** Enable notifications
    #+BEGIN_SRC emacs-lisp
-     (erc-track-mode nil)
-     (setq  erc-track-position-in-mode-line nil
-	    erc-mode-line-format "")
+     (require 'erc-desktop-notifications)
+   #+END_SRC
+** Smiley mode
+   #+BEGIN_SRC emacs-lisp
+     (erc-smiley-enable)
    #+END_SRC
 
 * Eshell
-  
+
+** Eshell toggle  
+   code from =multi-term.el=
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar eshell-dedicated-exists-p nil)
+     (defun eshell-dedicated-toggle ()
+       "Toggle dedicated `multi-term' window."
+       (interactive)
+       (if (eshell-dedicated-exist-p)
+	   (progn
+	     (multi-term-dedicated-close)
+	     (if (and multi-term-dedicated-close-back-to-open-buffer-p
+		      multi-term-dedicated-close-buffer)
+		 (switch-to-buffer multi-term-dedicated-close-buffer)
+	       ))
+	 (if multi-term-dedicated-close-back-to-open-buffer-p
+	     (setq multi-term-dedicated-close-buffer (current-buffer)))
+	 (multi-term-dedicated-open)
+	 ))
+
+     ;;;###autoload
+     (defun multi-term-dedicated-select ()
+       "Select the `multi-term' dedicated window."
+       (interactive)
+       (if (multi-term-dedicated-exist-p)
+	   (select-window multi-term-dedicated-window)
+	 (message "`multi-term' window is not exist.")))
+
+   #+END_SRC
 ** Background makes
    from emacswiki
 
@@ -408,24 +453,12 @@
   (setq mu4e-maildir (expand-file-name "~/Maildir"))
   #+END_SRC
 
-  load file with email configuration
+  load file with email configuration, this has my mu4e contexts:
   
-   
   #+BEGIN_SRC emacs-lisp  
     (load-file (expand-file-name "~/email.el"))
   #+END_SRC
-  
-  set the user email address
 
-   
-  #+BEGIN_SRC emacs-lisp
-    (setq mu4e-user-mail-address-list
-          (mapcar (lambda (account) (cadr (assq 'user-mail-address account)))
-                  my/mu4e-account-alist))
-  #+END_SRC
-
-
-   
   #+BEGIN_SRC emacs-lisp 
     (setq mu4e-sent-messages-behavior 'delete)
   #+END_SRC  
@@ -434,8 +467,7 @@
   
    
   #+BEGIN_SRC emacs-lisp  
-    (setq mu4e-get-mail-command "offlineimap")
-
+    (setq mu4e-get-mail-command "offlineimap -o")
   #+END_SRC
 
   
@@ -452,7 +484,12 @@
 	  smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
 	  smtpmail-debug-info t)
   #+END_SRC
+** Spelling
 
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'mu4e-compose-mode-hook (lambda ()
+					 (flyspell-mode)))
+   #+END_SRC
 ** Epa integration
   
     
@@ -469,44 +506,44 @@
 
 ** Offlineimap configuration
    
-   This is not Emacs specific but I just wanted to throw it here
+   It is unrelated to Emacs but I put my =.offlineimaprc= here.
 
-   here is my .offlineimaprc
-
-    
-   #+BEGIN_SRC c :tangle no
-       [general]
-     accounts = Gmail
-     maxconnections = 3
-     maxsyncaccounts = 1
+   #+BEGIN_SRC conf :tangle no
+     [general]
+     accounts = Gmail,MAKCock
      pythonfile = ~/.offlineimap.py
+
 
      [Account Gmail]
      localrepository = Local
      remoterepository = Remote
+     autorefresh = 3
+     status_backend = sqlite
+     maxconnections = 3
+     maxsyncaccounts = 3
+
 
      [Repository Local]
-     type = Maildir
-     localfolders = ~/Maildir
+     type = GmailMaildir
+     localfolders = ~/Maildir/KnaniGmail
+     nametrans = lambda folder: {'archive': '[Gmail].Tous les messages'}.get(folder, folder)
 
      [Repository Remote]
      type = Gmail
      remoteuser = medazizknani@gmail.com
      remotepasseval = get_password_emacs("imap.gmail.com", "medazizknani@gmail.com", "993")
-     realdelete = no
-
-     folderfilter = lambda foldername: foldername not in ['[Gmail]/Spam', '[Gmail].Tous les messages', '[Gmail].Suivis', '[Gmail]/Important']
-
-     remotepass = password
-
-     holdconnectionopen = true
-     keepalive = 60
+     nametrans = lambda folder: {'archive': '[Gmail].Tous les messages'}.get(folder, folder)
+     folderfilter = lambda x: x not in ['[Gmail]/Spam', '[Gmail]/Tous les messages']
      sslcacertfile = /etc/ssl/certs/ca-certificates.crt
-
 
      [Account MAKCock]
      localrepository = LocalCock
      remoterepository = RemoteCock
+     autorefresh = 3
+     status_backend = sqlite
+     maxconnections = 3
+     maxsyncaccounts = 3
+
 
      [Repository LocalCock]
      type = Maildir
@@ -518,15 +555,12 @@
      remoteuser = mak@cock.li
      remotepasseval = get_password_emacs("mail.cock.li", "mak@cock.li", "993")
      realdelete = no
-     remotepass = password
      holdconnectionopen = true
      keepalive = 60
      sslcacertfile = /etc/ssl/certs/ca-certificates.crt
-
    #+END_SRC
 
    as for the =get_password_emacs= function here it is
-
     
    #+BEGIN_SRC python :tangle no
      import re, os
@@ -546,10 +580,9 @@
 
 ** Async smtp send function
 
-    
+   This won't block Emacs hopefully 
    #+BEGIN_SRC emacs-lisp  
      (require 'smtpmail-async)
-
      (setq send-mail-function 'async-smtpmail-send-it
 	   message-send-mail-function 'async-smtpmail-send-it)
    #+END_SRC
@@ -561,140 +594,12 @@
    #+BEGIN_SRC emacs-lisp
      (setq mu4e-headers-skip-duplicates t)
    #+END_SRC
-
-** Multiple mail
+ 
    
-   I use multiple mail accounts
-
-   the code is [[https://www.djcbsoftware.nl/code/mu/mu4e/Multiple-accounts.html][apdated from here]] it takes advantage of mu4e contexts
-
-   sets the current account and the last read account
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (defvar my/mu4e-last-read-account "")
-     (defvar my/mu4e-current-account nil)
+** Key binding
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key [(f5)] 'mu4e)
    #+END_SRC
-
-   the function that sets accounts
-   
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (defun my/mu4e-set-account ()
-       "Set the account for composing a message."
-       (interactive)
-       (let* ((account
-               (if mu4e-compose-parent-message
-                   (let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
-                     (string-match "/\\(.*?\\)/" maildir)
-                     (match-string 1 maildir))
-                 (completing-read (format "Compose with account: (%s) "
-                                          (mapconcat #'(lambda (var) (if (string= (car var) my/mu4e-last-read-account)
-                                                                    (format "[%s]" (car var))
-                                                                  (car var)))
-                                                     my/mu4e-account-alist "/"))
-                                  (mapcar #'(lambda (var) (car var)) my/mu4e-account-alist)
-                                  nil t nil nil (caar my/mu4e-account-alist))))
-              (account-vars (cdr (assoc account my/mu4e-account-alist))))
-         (progn
-           (setq my/mu4e-last-read-account account)
-           (setq my/mu4e-current-account account-vars)
-           (if account-vars
-               (mapc #'(lambda (var)
-                         (set (car var) (cadr var)))
-                     account-vars)
-             (error "No email account found")))))
-   #+END_SRC
-   
-
-   This is function insert the signature, I'm not sure why this doesn't happen by default, this is a fast hack, clearly it needs more debugging
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (defun my/mu4e-execute-account-vars ()
-       "docstring"
-       (when my/mu4e-current-account
-         (progn
-           (mapc #'(lambda (var)
-                     (set (car var) (cadr var)))
-                 my/mu4e-current-account))
-         (when (string= "*draft*"  (buffer-name))
-           (when message-signature
-             (message-insert-signature)))))
-     (add-hook 'mu4e-compose-mode-hook 'my/mu4e-execute-account-vars)
-   #+END_SRC
-
-
-   set the keybinding
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (global-set-key (kbd "C-x c") 'my/mu4e-set-account)
-   #+END_SRC
-   
-* Perspective
-
-  I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
-
-   
-  #+BEGIN_SRC emacs-lisp  
-    (require 'perspective)
-
-    (setq persp-initial-frame-name "dev")
-    (persp-mode t)
-  #+END_SRC
-
-  
-** Perspectives
-
-   This is my perspectives (or virtual desktops)
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     ;; (persp-switch "irc")
-     (with-perspective "email"
-       (mu4e)
-       ;; the easy way, feasible also with emacs-async
-       (sleep-for 1))
-
-     (with-perspective "files"
-       (dired "~/"))
-
-     (with-perspective "org"
-       (org-agenda-list)
-       (sleep-for 1)
-       (delete-other-windows)
-       (switch-to-buffer "*Org Agenda*"))
-
-     (with-perspective "eshell"
-       (eshell))
-
-     (require 'proced)
-     (with-perspective "proced"
-       (proced)
-       (delete-other-windows)
-       (switch-to-buffer "*Proced*"))
-   #+END_SRC
-   
-** Show only current perspective
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (defun persp-update-modestring ()
-       "Update `persp-modestring' to reflect the current perspectives.
-     Has no effect when `persp-show-modestring' is nil."
-       (when persp-show-modestring
-	 (let ((open (list (nth 0 persp-modestring-dividers)))
-	       (close (list (nth 1 persp-modestring-dividers)))
-	       (sep (nth 2 persp-modestring-dividers)))
-	   (if persp-curr
-	       (setq persp-modestring
-		     (append open (list (persp-format-name (persp-name persp-curr)))
-			     close))
-	     (setq persp-modestring nil)))))
-   #+END_SRC
-
 * Music
 
   I use EMMS for music, I also have emms-player-mpv to play the thing inside mpv.
@@ -702,8 +607,8 @@
    
   #+BEGIN_SRC emacs-lisp
     (require 'emms-setup)
-    (emms-standard)
-    (emms-default-players)
+    (emms-all)
+
     ;; fallback to mplayer
     (define-emms-simple-player mplayer '(file url)
       (regexp-opt '(".ogg" ".mp3" ".wav" ".mpg" ".mpeg" ".wmv" ".wma" ".webm"
@@ -712,18 +617,10 @@
 		    ".rm" ".rmvb" ".mp4" ".flac" ".vob" ".m4a" ".flv" ".ogv" ".pls" ".opus"))
       "mplayer" "-slave" "-quiet" "-really-quiet" "-fullscreen")
 
-    (define-emms-simple-player mpv '(file url streamlist playlist)
-      (concat "\\`\\(http\\|mms\\|tcp\\)://\\|"
-	      (emms-player-simple-regexp
-	       "ogg" "mp3" "wav" "mpg" "mpeg" "wmv" "wma"
-	       "mov" "avi" "divx" "ogm" "ogv" "asf" "mkv"
-	       "rm" "rmvb" "mp4" "flac" "vob" "m4a" "ape"
-	       "flv" "webm" "m4b" "m4p" "m4v" "m4r" "3gp"
-	       "aac" "aiff"))
-      "mpv" "--quiet" "--really-quiet")
 
-    (require 'emms-player-mpv)
     (add-to-list 'emms-player-list 'emms-player-mpv)
+
+    (add-to-list 'emms-player-mpv-parameters "--vo=null")
 
     (require 'emms-info-libtag)
     (setq emms-info-functions '(emms-info-libtag))
@@ -735,88 +632,63 @@
     (setq emms-source-file-default-directory "~/Music/")
   #+END_SRC
 
+  regex
+
+  #+BEGIN_SRC emacs-lisp
+    (setq emms-player-base-format-list
+      '("ogg" "mp3" "wav" "mpg" "mpeg" "wmv" "wma"
+	"mov" "avi" "divx" "ogm" "ogv" "asf" "mkv"
+	"rm" "rmvb" "mp4" "flac" "vob" "m4a" "ape"
+	"flv" "webm" "aif" "dsf"))
+
+    (emms-player-set emms-player-mpv 'regex
+		     (apply #'emms-player-simple-regexp emms-player-base-format-list))
+  #+END_SRC
+  
   I also have this in my mpv configuration
 
      
      #+BEGIN_SRC sh :tangle no
        audio-display=no
      #+END_SRC
+     
 
-  
-  If someone has an elegant function to resize covers and display it inside emms-browser, I would be very happy if you email it to me.
+     Insert current track in buffer
 
-** Perspective
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (with-perspective "music"
-       (emms-smart-browse))
+     #+BEGIN_SRC emacs-lisp
+       (defun my/emms-insert-current-track ()
+	 (interactive)
+	 (insert
+	  (let* ((data (emms-playlist-current-selected-track))
+		 (artist (cdr (assoc 'info-artist data)))
+		 (title (cdr (assoc 'info-title data))))
+	    (concat title " By " artist))))
+     #+END_SRC
+** mpv config
+   
+   mpv command line parameters
+   #+BEGIN_SRC emacs-lisp
+     (setq emms-player-mpv-parameters
+	   '("--quiet" "--really-quiet"))
    #+END_SRC
+
+
+   Thanks to =Mike Kazantsev= for his help on the EMMS mailing list.
+   #+BEGIN_SRC emacs-lisp
+     (defun emms-mpv-toggle-vid ()
+       (interactive)
+       (emms-player-mpv-cmd `(get_property vid)
+			    (lambda (vid err)
+			      (emms-player-mpv-cmd `(set_property vid ,(if (eq vid ':json-false)
+									  1
+									0))))))
+   #+END_SRC
+
 ** Covers
    
-   This piece of code doesn't always work, also I need a way around imagemagick to resize all covers
-
-    
+   I know this exists thanks to =Pierre Neidhardt= email apparently this was added in version 5.
    #+BEGIN_SRC emacs-lisp
-     (defun my-emms-covers (dir type)
-       "Choose album cover in DIR deppending on TYPE.
-     Small cover should be less than 80000 bytes.
-     Medium - less than 120000 bytes."
-       (let* ((pics (directory-files-and-attributes
-		     dir t "\\.\\(jpe?g\\|png\\|gif\\|bmp\\)$" t))
-	      (pic (car pics))
-	      (pic-size (nth 8 pic)))
-	 (let (temp)
-	   (cond
-	    ((eq type 'small)
-	     (while (setq temp (cadr pics))
-	       (let ((temp-size (nth 8 temp)))
-		 (if (< temp-size pic-size)
-		     (setq pic temp
-			   pic-size temp-size)))
-	       (setq pics (cdr pics)))
-	     (if (<= (or pic-size 80001) 80000)
-		 (car pic)))
-	    ((eq type 'medium)
-	     (if (and pic (setq temp (cadr pics)))
-		 (progn
-		   (setq pics (cdr pics))
-		   (let ((temp-size (nth 8 temp)))
-		     (let ((small temp)
-			   (small-size temp-size))
-		       (if (< pic-size small-size)
-			   (setq small pic
-				 small-size pic-size
-				 pic temp
-				 pic-size temp-size))
-		       (while (setq temp (cadr pics))
-			 (setq temp-size (nth 8 temp))
-			 (cond
-			  ((< temp-size small-size)
-			   (setq pic small
-				 pic-size small-size
-				 small temp
-				 small-size temp-size))
-			  ((< temp-size pic-size)
-			   (setq pic temp
-				 pic-size temp-size)))
-			 (setq pics (cdr pics)))
-		       (car (if (<= pic-size 120000) pic
-			      small)))))
-	       (car pic)))
-	    ((eq type 'large)
-	     (while (setq temp (cadr pics))
-	       (let ((temp-size (nth 8 temp)))
-		 (if (> temp-size pic-size)
-		     (setq pic temp
-			   pic-size temp-size)))
-	       (setq pics (cdr pics)))
-	     (car pic))))))
-
-
-     (add-hook 'emms-playlist-mode-hook
-	       (lambda ()
-		 (setq emms-browser-covers 'my-emms-covers)))
+     (setq emms-browser-covers #'emms-browser-cache-thumbnail)
    #+END_SRC
 * Org
 
@@ -831,6 +703,12 @@
   #+BEGIN_SRC emacs-lisp
     (setq org-log-done 'time)
   #+END_SRC
+
+  Org directory
+
+  #+BEGIN_SRC emacs-lisp
+    (setq org-directory "~/Documents/org")
+  #+END_SRC
   
   For better viewing math equations
 
@@ -842,7 +720,7 @@
   setting program for rendering latex fragments
 
   #+BEGIN_SRC emacs-lisp
-    (setq org-preview-latex-default-process 'dvisvgm)
+    (setq org-preview-latex-default-process 'dvipng)
   #+END_SRC
 
   For easier math symbols input for latex
@@ -878,7 +756,7 @@
    
   #+BEGIN_SRC emacs-lisp
     (global-set-key (kbd "C-c a") 'org-agenda)
-    (define-key org-mode-map (kbd "M-RET") 'org-insert-heading)
+    ;; (define-key org-mode-map (kbd "M-RET") 'org-insert-heading)
     (define-key global-map "\C-cc" 'org-capture)
     (add-hook 'org-shiftup-final-hook 'windmove-up)
     (add-hook 'org-shiftleft-final-hook 'windmove-left)
@@ -887,7 +765,7 @@
   #+END_SRC
 
   
-**  org-trello sutff
+** org-trello sutff
    
     
    #+BEGIN_SRC emacs-lisp
@@ -906,6 +784,7 @@
      (org-babel-do-load-languages
       'org-babel-load-languages '((C . t)
 				  (shell . t)
+				  (calc . t)
 				  (python . t)))
    #+END_SRC
 
@@ -952,6 +831,47 @@
      (org-crypt-use-before-save-magic)
    #+END_SRC
 
+** Org modules
+   
+   Add org-habit
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-modules 'org-habit)
+   #+END_SRC
+
+** Org tempo
+   
+   #+begin_src emacs-lisp
+     (require 'org-tempo)
+   #+end_src
+
+   Disable stuff for org
+
+   #+begin_src emacs-lisp
+
+     (defun disable-stuff-for-org ()
+       (yas/minor-mode 0)
+       (electric-pair-mode 0))
+
+     (add-hook 'org-mode-hook #'disable-stuff-for-org)
+   #+end_src
+
+   #+begin_src emacs-lisp
+
+     (add-hook 'org-mode-hook
+	       (lambda ()
+		 (setq org-structure-template-alist  '(("a" . "export ascii")
+						       ("c" . "center")
+						       ("C" . "comment")
+						       ("e" . "example")
+						       ("E" . "export")
+						       ("h" . "export html")
+						       ("l" . "export latex")
+						       ("q" . "quote")
+						       ("s" . "src")
+						       ("v" . "verse")))))
+
+   #+end_src
 ** Org capture
 
     
@@ -1017,6 +937,16 @@
 		  `("t" "Todo" entry (file ,(concat org-directory "/tasks.org"))
 		    "* TODO %?\n  %i\n  %a"))
    #+END_SRC
+   
+   Template to capture an elfeed-entry copied from https://github.com/skeeto/elfeed/pull/206
+   
+   #+BEGIN_SRC emacs-lisp  
+     (add-to-list 'org-capture-templates 
+		  `("l" "To read" entry (file ,(concat org-directory "/bookmarks.org"))
+		   "* TODO %?%:description :toread:
+     - %:link
+     %(when (< 0 (length \"%:elfeed-entry-link\")) (concat \"- web link: \" \"%:elfeed-entry-link\"))"))
+   #+END_SRC
 
 
    Capture web bookmarks
@@ -1035,9 +965,56 @@
    #+BEGIN_SRC emacs-lisp  
      (add-to-list 'org-capture-templates
 		  `("T" "Tip" entry (file ,(concat org-directory "/tip.org"))
-		    "* %? %^g\n  #+BEGIN_SRC\n%x\n  #+END_SRC\n  %a\n  captured on: %U\n\n"))
+		    "* %? %^g\n  %x\n  %a\n  captured on: %U\n\n"))
    #+END_SRC
 
+
+   Capture passwords
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-capture-templates `("P" "Password" entry (file ,(concat org-directory "/passwords.org.gpg"))
+		      "* %^{Title}\n  %^{URL}p %^{USERNAME}p %^{PASSWORD}p"))
+   #+END_SRC
+
+   Journal
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-capture-templates `("j" "Journal" entry (file+olp+datetree ,(concat org-directory "/journal.org"))
+					   "* %?\nEntered on %U\n  %i\n  %a"))
+   #+END_SRC
+
+   Blog post
+
+   #+BEGIN_SRC emacs-lisp
+     (defun capture-report-data-file ()
+       (let ((name (read-string "Name: ")))
+	 (find-file (expand-file-name (format "%s-%s.org"
+					      (format-time-string "%Y-%m-%d")
+					      name) "/part3/mo/emacs_site/blog/"))))
+
+
+     (add-to-list 'org-capture-templates
+		  `("B"
+		     "Blog post"
+
+		     plain
+		     (function capture-report-data-file)
+		     "#+TITLE: %^{prompt}\n#+DATE: %T\n\n%?"))
+   #+END_SRC
+
+
+   This might be deprecated in the future
+   #+BEGIN_SRC emacs-lisp
+     (require 'org-mu4e)
+   #+END_SRC
+
+   Capture email:
+   
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-capture-templates 
+		  `("e" "Email" entry (file ,(concat org-directory "/email.org"))
+		    "* %?%:description :email:\n  - %:link\n  - %:fromto"))
+   #+END_SRC
 
 *** Org protocol capture
     Org protocol stuff
@@ -1063,6 +1040,14 @@
 		   `("L" "Protocol Link" entry (file+headline ,(concat org-directory "protocol.org") "Inbox")
 					     "* %? [[%:link][%:description]] \nCaptured On: %U"))
     #+END_SRC
+
+    Fix org cpature with counsel
+
+    #+BEGIN_SRC emacs-lisp
+      (eval-after-load 'org
+	`(load "~/.emacs.d/lisp/org-fix-capture-counsel.el"))
+    #+END_SRC
+    
 ** Org contact
    
    Set org contact files
@@ -1079,20 +1064,191 @@
 ** Latex export code stuff
     
    #+BEGIN_SRC emacs-lisp 
-     (setq ;; org-latex-listings 'minted
-           org-latex-packages-alist '(("" "minted"))
-           org-src-fontify-natively t
-           org-latex-pdf-process
-           '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-             "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+     (setq org-latex-listings 'minted
+	   org-latex-packages-alist '(("" "minted"))
+	   org-src-fontify-natively t
+	   org-latex-pdf-process
+	   '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
    #+END_SRC
    
+** Org passwords
+      
+   #+BEGIN_SRC emacs-lisp
+     (setq org-passwords-file (concat org-directory "/passwords.org.gpg"))
+   #+END_SRC
+
+** Split code block
+   
+   
+   
+   - Note taken on [2018-08-24 Fri 23:15] \\
+     Copied from https://scripter.co/splitting-an-org-block-into-two/
+
+   this function will say if the cursor is any org-block:
+  
+   #+BEGIN_SRC emacs-lisp
+     (defun my/org-in-any-block-p ()
+       "Return non-nil if the point is in any Org block.
+
+     The Org block can be *any*: src, example, verse, etc., even any
+     Org Special block.
+
+     This function is heavily adapted from `org-between-regexps-p'."
+       (save-match-data
+	 (let ((pos (point))
+	       (case-fold-search t)
+	       (block-begin-re "^[[:blank:]]*#\\+begin_\\(?1:.+?\\)\\(?: .*\\)*$")
+	       (limit-up (save-excursion (outline-previous-heading)))
+	       (limit-down (save-excursion (outline-next-heading)))
+	       beg end)
+	   (save-excursion
+	     ;; Point is on a block when on BLOCK-BEGIN-RE or if
+	     ;; BLOCK-BEGIN-RE can be found before it...
+	     (and (or (org-in-regexp block-begin-re)
+		      (re-search-backward block-begin-re limit-up :noerror))
+		  (setq beg (match-beginning 0))
+		  ;; ... and BLOCK-END-RE after it...
+		  (let ((block-end-re (concat "^[[:blank:]]*#\\+end_"
+					      (match-string-no-properties 1)
+					      "\\( .*\\)*$")))
+		    (goto-char (match-end 0))
+		    (re-search-forward block-end-re limit-down :noerror))
+		  (> (setq end (match-end 0)) pos)
+		  ;; ... without another BLOCK-BEGIN-RE in-between.
+		  (goto-char (match-beginning 0))
+		  (not (re-search-backward block-begin-re (1+ beg) :noerror))
+		  ;; Return value.
+		  (cons beg end))))))
+
+   #+END_SRC
+   
+   This function will split the block
+   
+   #+BEGIN_SRC emacs-lisp
+     (defun my/org-split-block ()
+       "Sensibly split the current Org block at point."
+       (interactive)
+       (if (my/org-in-any-block-p)
+	   (save-match-data
+	     (save-restriction
+	       (widen)
+	       (let ((case-fold-search t)
+		     (at-bol (bolp))
+		     block-start
+		     block-end)
+		 (save-excursion
+		   (re-search-backward "^\\(?1:[[:blank:]]*#\\+begin_.+?\\)\\(?: .*\\)*$" nil nil 1)
+		   (setq block-start (match-string-no-properties 0))
+		   (setq block-end (replace-regexp-in-string
+				    "begin_" "end_" ;Replaces "begin_" with "end_", "BEGIN_" with "END_"
+				    (match-string-no-properties 1))))
+		 ;; Go to the end of current line, if not at the BOL
+		 (unless at-bol
+		   (end-of-line 1))
+		 (insert (concat (if at-bol "" "\n")
+				 block-end
+				 "\n\n"
+				 block-start
+				 (if at-bol "\n" "")))
+		 ;; Go to the line before the inserted "#+begin_ .." line
+		 (beginning-of-line (if at-bol -1 0)))))
+	 (message "Point is not in an Org block")))
+   #+END_SRC
+   
+   Split if in an org block, add this as an advice to =org-meta-return=:
+   
+   #+BEGIN_SRC emacs-lisp
+     (defun my/org-meta-return-advice (&rest args)
+       "Do not call the original function if point is in an Org block."
+       (let ((do-not-run-orig-fn (my/org-in-any-block-p)))
+	 (when do-not-run-orig-fn
+	   (my/org-split-block))
+	 do-not-run-orig-fn))
+     (advice-add 'org-meta-return :before-until #'my/org-meta-return-advice)
+   #+END_SRC
+
+** The agenda stuff
+
+
+   Function to print the current agenda view:
+
+   #+BEGIN_SRC emacs-lisp
+     (defun my/print-agenda (bool)
+       (interactive
+	(list (y-or-n-p "Print the current agenda view ? ")))
+       (cond (bool
+	      (org-agenda-write "~/file.ps")
+	      (async-shell-command "lp ~/file.ps"))))
+   #+END_SRC
+
+   Org agenda exporter settings
+   
+   #+BEGIN_SRC emacs-lisp
+     (setq org-agenda-exporter-settings
+	   '((ps-print-color-p 'black-white)
+	     (htmlize-output-type 'css)))
+   #+END_SRC
+
+** Org bullets
+   #+BEGIN_SRC emacs-lisp
+     (require 'org-bullets)
+     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+   #+END_SRC
+** Org books
+
+   Give rating to book:
+
+   #+BEGIN_SRC emacs-lisp
+     (defun my/org-books-rate-book (position rating)
+       "Apply RATING to book at given POSITION."
+       (interactive "d\nnRating (stars 1-5): ")
+       (if (> rating 0)
+	   (org-set-property "RATING" (s-repeat rating "★"))))
+   #+END_SRC
+
+** Org super agenda 
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'load-path "~/.emacs.d/lisp/org-super-agenda")
+     (require 'org-super-agenda)
+
+     (org-super-agenda-mode 1)
+     (let ((org-super-agenda-groups
+	    '((:name "important"
+		     :tag ("bills" "important")
+		     :priority "A")
+	      ;; Set order of multiple groups at once
+	      (:order-multi (2 (:name "Shopping in town"
+				      ;; Boolean AND group matches items that match all subgroups
+				      :and (:tag "shopping" :tag "@town"))
+			       (:name "Food-related"
+				      ;; Multiple args given in list with implicit OR
+				      :tag ("food" "dinner"))
+			       (:name "Personal"
+				      :habit t
+				      :tag "personal")
+			       (:name "Space-related (non-moon-or-planet-related)"
+				      ;; Regexps match case-insensitively on the entire entry
+				      :and (:regexp ("space" "NASA")
+						    ;; Boolean NOT also has implicit OR between selectors
+						    :not (:regexp "moon" :tag "planet")))))
+	      ;; Groups supply their own section names when none are given
+	      (:todo "WAITING" :order 8)  ; Set order of this section
+	      (:todo ("SOMEDAY" "TOREAD" "CHECK" "TOWATCH")
+		     :order 9)
+	      (:priority<= "B"
+			   :order 1)
+	      )))
+       (org-agenda nil "a"))
+
+   #+END_SRC
+
 ** Custom faces
 
     
    #+BEGIN_SRC emacs-lisp 
      (custom-set-faces
-      '(org-block ((t (:height 1.3)))))
+      '(org-block ((t (:height 1.1)))))
    #+END_SRC
 * Presentations
 
@@ -1186,6 +1342,9 @@
      (add-hook 'vue-mode-hook 'emmet-mode)
      (add-hook 'css-mode-hook 'emmet-mode)
      (add-hook 'web-mode-hook 'emmet-mode)
+
+     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
    #+END_SRC
 
 ** Elisp
@@ -1199,16 +1358,6 @@
                                        (paredit-mode 1)))
    #+END_SRC
 
-** Hylang
-   
-    
-   #+BEGIN_SRC emacs-lisp 
-     (require 'hy-mode)
-     (add-hook 'hy-mode-hook (lambda ()
-                               (show-paren-mode 1)
-                               (paredit-mode 1)
-                               (set (make-local-variable 'company-backends) '(company-hy))))
-   #+END_SRC
    
 * Pomodoro
 
@@ -1229,18 +1378,18 @@
    #+BEGIN_SRC emacs-lisp  
      (global-prettify-symbols-mode 1)
      (add-hook 'prog-mode-hook
-               (lambda ()
-                 (push '("!="      . ?≠) prettify-symbols-alist)
-                 (push '("<="      . ?≤) prettify-symbols-alist)
-                 (push '(">="      . ?≥) prettify-symbols-alist)
-                 (push '("alpha"   . ?α) prettify-symbols-alist)
-                 (push '("beta"    . ?β) prettify-symbols-alist)
-                 (push '("gamma"   . ?γ) prettify-symbols-alist)
-                 (push '("delta"   . ?Δ) prettify-symbols-alist)
-                 (push '("epsilon" . ?ε) prettify-symbols-alist)
-                 (push '("theta"   . ?θ) prettify-symbols-alist)
-                 (push '("pi"      . ?π) prettify-symbols-alist)
-                 (push '("sqrt"    . ?√) prettify-symbols-alist)))
+	       (lambda ()
+		 (push '("!="      . ?≠) prettify-symbols-alist)
+		 (push '("<="      . ?≤) prettify-symbols-alist)
+		 (push '(">="      . ?≥) prettify-symbols-alist)
+		 (push '("alpha"   . ?α) prettify-symbols-alist)
+		 (push '("beta"    . ?β) prettify-symbols-alist)
+		 (push '("gamma"   . ?γ) prettify-symbols-alist)
+		 (push '("delta"   . ?Δ) prettify-symbols-alist)
+		 (push '("epsilon" . ?ε) prettify-symbols-alist)
+		 (push '("theta"   . ?θ) prettify-symbols-alist)
+		 (push '("pi"      . ?π) prettify-symbols-alist)
+		 (push '("sqrt"    . ?√) prettify-symbols-alist)))
    #+END_SRC
 
 ** Python-mode
@@ -1267,7 +1416,7 @@
    
   #+BEGIN_SRC emacs-lisp
     (require 'projectile)
-
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
     (projectile-mode 1)    
   #+END_SRC
 
@@ -1279,12 +1428,12 @@
 
   #+END_SRC
 
-  enable helm-projectile
+  enable counsel-projectile
 
    
   #+BEGIN_SRC emacs-lisp  
-    (require 'helm-projectile)
-    (helm-projectile-on)
+    (require 'counsel-projectile)
+    (counsel-projectile-mode 1)
   #+END_SRC
 
 * Elfeed
@@ -1293,11 +1442,13 @@
   #+BEGIN_SRC emacs-lisp  
     (require 'elfeed)
 
-    (setq elfeed-feeds
-	  '("http://nullprogram.com/feed/"
-	    "http://planet.emacsen.org/atom.xml"
-	    "http://reddit.com/r/emacs/.rss"
-	    "http://irreal.org/blog/?feed=rss2"))
+    (load-file (expand-file-name "~/feeds.el"))
+  #+END_SRC
+
+  set default search filter
+
+  #+BEGIN_SRC emacs-lisp
+    (setq  elfeed-search-filter "@1-week-ago +unread")
   #+END_SRC
 
 * Magit
@@ -1307,9 +1458,9 @@
    
   #+BEGIN_SRC emacs-lisp
     (require 'magit)
-    (require 'magithub)
+    ;; (require 'magithub)
     (global-set-key (kbd "C-x g") 'magit-status)
-    (magithub-feature-autoinject t)
+    ;; (magithub-feature-autoinject t)
     (put 'magit-clean 'disabled nil)
 
     (global-set-key (kbd "<f12>") 'menu-bar-mode)
@@ -1347,14 +1498,32 @@
   #+END_SRC
 
 * Study
-  
+
+** Nov.el  
+
+   Used to do read files
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'nov)
+     (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+   #+END_SRC
+   
+   Change font
+   
+   #+BEGIN_SRC emacs-lisp
+     (defun my-nov-font-setup ()
+       (face-remap-add-relative 'variable-pitch :height 123
+				:family "DejaVu Sans Mono"))
+     (add-hook 'nov-mode-hook 'my-nov-font-setup)
+   #+END_SRC
+
 ** org-pdfview stuff
    
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (require 'org-pdfview)
    #+END_SRC
 
-   #+BEGIN_SRC elisp
+   #+BEGIN_SRC emacs-lisp
      (define-key pdf-view-mode-map
        (kbd "C-c C-e") (lambda ()
 			 (interactive)
@@ -1370,6 +1539,15 @@
 				 (org-insert-link link link))))))
    #+END_SRC
 
+* W3m
+
+  
+** Set default search engine
+
+   #+BEGIN_SRC emacs-lisp
+     (setq w3m-search-default-engine "duckduckgo")
+   #+END_SRC
+
 * Key chord
 
   First require key chord
@@ -1383,7 +1561,7 @@
   
 ** Switch to previous buffer
 
-   from bastov's blog
+   from bbatsov's blog
 
     
    #+BEGIN_SRC emacs-lisp 
@@ -1400,7 +1578,7 @@
 
     
    #+BEGIN_SRC emacs-lisp 
-     (key-chord-define-global "FF" 'helm-find-files)
+     (key-chord-define-global "FF" #'counsel-find-file)
    #+END_SRC
 
 ** Beginning and end of buffer
@@ -1546,8 +1724,7 @@
 
     
    #+BEGIN_SRC emacs-lisp  
-     (setq browse-url-browser-function 'browse-url-generic
-           browse-url-generic-program "icecat")
+     (setq browse-url-browser-function 'w3m-browse-url)
    #+END_SRC
 
 ** Smarter beginning of line
@@ -1596,7 +1773,7 @@
 
 ** Tramp sudo edit
 
-   Use tramp to edit files with root, I got this from bbastov blog
+   Use tramp to edit files with root, I got this from bbatsov blog
 
     
    #+BEGIN_SRC emacs-lisp  
@@ -1676,8 +1853,9 @@
 	 mmm-mode
 	 highlight-indentation-mode
 	 elpy-mode
+	 projectile-mode
 	 dired-async-mode
-	 helm-mode))
+	 ivy-mode))
 
      (defun purge-minor-modes ()
        (interactive)
@@ -1695,13 +1873,6 @@
    #+BEGIN_SRC emacs-lisp
      (require 'ace-window)
      (global-set-key (kbd "C-x o") 'ace-window)
-   #+END_SRC
-
-   styling the leading char
-
-    
-   #+BEGIN_SRC emacs-lisp 
-     (set-face-attribute 'aw-leading-char-face nil :height 400)
    #+END_SRC
    
    set scope to frame
@@ -1747,13 +1918,10 @@
 ** Tea
 
    Timer code for brewing my tea.
-
-   You need the say program (it comes with GNUstep).
-
     
    #+BEGIN_SRC emacs-lisp  
      (require 'tea-time)
-     (setq tea-time-sound-command "espeak -vde+f5  \"Es ist teezeit mein Kapitän\"")
+     (setq tea-time-sound-command "espeak  \"Your tea is ready\"")
      (setq tea-time-sound t)
      (define-key global-map "\C-ct" 'tea-time)
    #+END_SRC
@@ -1803,14 +1971,14 @@
        (if (eq light-theme *last-theme*)
 	   (progn
 	     (setq *last-theme* dark-theme)
-	     (custom-set-faces
-	      '(default ((t (:stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :family "dina")))))
 	     (disable-theme light-theme)
-	     (load-theme dark-theme))
+	     (load-theme dark-theme)
+	     (custom-set-faces
+	    '(default ((t (:height 113 :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :family "DejaVu Sans Mono"))))))
 	 (progn
 	   (disable-theme dark-theme)
 	   (custom-set-faces
-	      '(default ((t (:stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :family "DejaVu Sans Mono")))))
+	    '(default ((t (:height 113 :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :family "DejaVu Sans Mono")))))
 	   (setq *last-theme* light-theme)
 	   (load-theme light-theme))))
    #+END_SRC
@@ -1833,6 +2001,12 @@
    #+BEGIN_SRC emacs-lisp
      (pdf-tools-install)
    #+END_SRC
+
+   midnight colors
+
+   #+BEGIN_SRC emacs-lisp
+     (setq pdf-view-midnight-colors '("#5B4636" . "#F4ECD8"))
+   #+END_SRC
 ** Make prompts y or n
    #+BEGIN_SRC emacs-lisp
      (fset 'yes-or-no-p 'y-or-n-p)
@@ -1846,5 +2020,26 @@
    #+BEGIN_SRC emacs-lisp
      (defun get-current-time ()
        (interactive)
-       (message (format-time-string "%l:%M %b %d %a")))
+       (message (format-time-string "%H:%M %b %d %a")))
    #+END_SRC
+** Mitigate slow next-line
+
+   #+BEGIN_SRC emacs-lisp
+     (setq auto-window-vscroll nil)
+   #+END_SRC
+
+** Enable ggtags mode
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'c-mode-common-hook
+	       (lambda ()
+		 (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+		   (ggtags-mode 1))))
+   #+END_SRC
+** Pinentry
+
+   #+BEGIN_SRC emacs-lisp
+     (setq epa-pinentry-mode 'loopback)
+   #+END_SRC
+
+
