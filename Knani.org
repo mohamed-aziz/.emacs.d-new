@@ -43,15 +43,6 @@
    #+END_SRC
    
 ** Package sources
-
-   Initialize package
-   
-    
-   #+BEGIN_SRC emacs-lisp 
-     (require 'package)
-     (package-initialize)
-   #+END_SRC
-
    
    If the system has gnutls use ssl.
 
@@ -105,8 +96,8 @@
    
     
    #+BEGIN_SRC emacs-lisp 
-     (defconst dark-theme 'zenburn)
-     (defconst light-theme 'plan9)
+     (defconst dark-theme 'doom-one)
+     (defconst light-theme 'doom-one-light)
    #+END_SRC
       
    
@@ -116,9 +107,6 @@
 
      (when (> emacs-major-version 24)
        (scroll-bar-mode 0))
-
-     (add-hook 'after-init-hook (lambda ()
-				  (load-theme dark-theme)))
 
      ;; arabic font
      (when window-system
@@ -137,8 +125,7 @@
    Default font
    
    #+BEGIN_SRC emacs-lisp
-     (set-frame-font
-      "-misc-fixed-medium-r-normal--14-130-75-75-c-70-iso10646-1" nil t)
+     (set-frame-font "DejaVu Sans Mono 11" nil t)
    #+END_SRC
 
 ** Add load paths
@@ -150,11 +137,36 @@
 
    #+END_SRC
 
+
+
+* UI
+  
+  
+** Beacon
    
+   #+begin_src emacs-lisp
+     (require 'beacon)
+     (beacon-mode +1)
+   #+end_src
+
+** Doom
+
+   Doom mode-line
+
+   #+begin_src emacs-lisp
+     (require 'doom-modeline)
+     (doom-modeline-mode t)
+   #+end_src
+
+   #+begin_src emacs-lisp
+     (require 'doom-themes)
+     (load-theme 'doom-one t)
+     (doom-themes-visual-bell-config)
+   #+end_src
+
 * Ivy
   
   Enable Ivy
-
    
   #+BEGIN_SRC emacs-lisp
     (require 'ivy)
@@ -266,12 +278,12 @@
 
    #+END_SRC
 
-   
+  
 ** Open with xdg-open
    
    This just lets me open files (or directories) with their default applications, it doesn't support windows though since I don't think that it has a facility to open files like that.
    
-   This is stolen from bbastov crux package
+   This is stolen from bbatsov's crux package
 
    #+BEGIN_SRC emacs-lisp
      (defun crux-open-with (arg)
@@ -280,16 +292,16 @@
      With a prefix ARG always prompt for command to use."
        (interactive "P")
        (let* ((current-file-name
-               (if (eq major-mode 'dired-mode)
-                   (dired-get-file-for-visit)
-                 buffer-file-name))
-              (open (pcase system-type
-                      (`darwin "open")
-                      ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
-              (program (if (or arg (not open))
-                           (read-shell-command "Open current file with: ")
-                         open)))
-         (call-process program nil 0 nil current-file-name)))
+	       (if (eq major-mode 'dired-mode)
+		   (dired-get-file-for-visit)
+		 buffer-file-name))
+	      (open (pcase system-type
+		      (`darwin "open")
+		      ((or `gnu `gnu/linux `gnu/kfreebsd) "xdg-open")))
+	      (program (if (or arg (not open))
+			   (read-shell-command "Open current file with: ")
+			 open)))
+	 (call-process program nil 0 nil current-file-name)))
 
    #+END_SRC
 
@@ -339,31 +351,55 @@
     (erc-truncate-mode +1)
     (erc-spelling-mode 1)
     (setq erc-server-coding-system '(utf-8 . utf-8))
-    (setq erc-autojoin-channels-alist '(("freenode.net" . ("#python"
-							       "#python-eve"
-							       "#pocoo"
-							       "#emacs"
-							       "#gnu"
-							       "#django"
-							       "#crypto"
-							       "##programming"))
+    (setq erc-autojoin-channels-alist '(("freenode.net" . (
+							   "#emacs"
+							   "#gnu"
+							   "#crypto"
+							   "##programming"))
 					("oftc.net" . ("#suckless"
-							   "#debian"))))
+					"#debian"))))
   #+END_SRC
 ** Enable notifications
+
    #+BEGIN_SRC emacs-lisp
      (require 'erc-desktop-notifications)
    #+END_SRC
-** Hide from mode-line
-
+** Smiley mode
    #+BEGIN_SRC emacs-lisp
-     (erc-track-mode nil)
-     (setq  erc-track-position-in-mode-line nil
-	    erc-mode-line-format "")
+     (erc-smiley-enable)
    #+END_SRC
 
 * Eshell
-  
+
+** Eshell toggle  
+   code from =multi-term.el=
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar eshell-dedicated-exists-p nil)
+     (defun eshell-dedicated-toggle ()
+       "Toggle dedicated `multi-term' window."
+       (interactive)
+       (if (eshell-dedicated-exist-p)
+	   (progn
+	     (multi-term-dedicated-close)
+	     (if (and multi-term-dedicated-close-back-to-open-buffer-p
+		      multi-term-dedicated-close-buffer)
+		 (switch-to-buffer multi-term-dedicated-close-buffer)
+	       ))
+	 (if multi-term-dedicated-close-back-to-open-buffer-p
+	     (setq multi-term-dedicated-close-buffer (current-buffer)))
+	 (multi-term-dedicated-open)
+	 ))
+
+     ;;;###autoload
+     (defun multi-term-dedicated-select ()
+       "Select the `multi-term' dedicated window."
+       (interactive)
+       (if (multi-term-dedicated-exist-p)
+	   (select-window multi-term-dedicated-window)
+	 (message "`multi-term' window is not exist.")))
+
+   #+END_SRC
 ** Background makes
    from emacswiki
 
@@ -559,70 +595,12 @@
    #+BEGIN_SRC emacs-lisp
      (setq mu4e-headers-skip-duplicates t)
    #+END_SRC
-
-* Perspective
-
-  I was a heavy GNU screen user, and before that Tmux, well not anymore since I found that I can do that inside Emacs
-
+ 
    
-  #+BEGIN_SRC emacs-lisp  
-    (require 'perspective)
-
-    (setq persp-initial-frame-name "dev")
-    (persp-mode t)
-  #+END_SRC
-
-  
-** Perspectives
-
-   This is my perspectives (or virtual desktops)
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     ;; (persp-switch "irc")
-     (with-perspective "email"
-       (mu4e)
-       ;; the easy way, feasible also with emacs-async
-       (sleep-for 1))
-
-     (with-perspective "files"
-       (dired "~/"))
-
-     (with-perspective "org"
-       (org-agenda-list)
-       (sleep-for 1)
-       (delete-other-windows)
-       (switch-to-buffer "*Org Agenda*"))
-
-     (with-perspective "eshell"
-       (eshell))
-
-     (require 'proced)
-     (with-perspective "proced"
-       (proced)
-       (delete-other-windows)
-       (switch-to-buffer "*Proced*"))
-
-     (with-perspective "w3m"
-       (w3m))
+** Key binding
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key [(f5)] 'mu4e)
    #+END_SRC
-   
-** Show only current perspective
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (defun persp-update-modestring ()
-       "Update `persp-modestring' to reflect the current perspectives.
-     Has no effect when `persp-show-modestring' is nil."
-       (when persp-show-modestring
-	 (let ((open (list (nth 0 persp-modestring-dividers)))
-	       (close (list (nth 1 persp-modestring-dividers)))
-	       (sep (nth 2 persp-modestring-dividers)))
-	   (set-frame-parameter nil 'persp--modestring
-		     (append open (list (persp-format-name (persp-name (persp-curr))))
-			     close)))))
-   #+END_SRC
-
 * Music
 
   I use EMMS for music, I also have emms-player-mpv to play the thing inside mpv.
@@ -655,23 +633,38 @@
     (setq emms-source-file-default-directory "~/Music/")
   #+END_SRC
 
+  regex
+
+  #+BEGIN_SRC emacs-lisp
+    (setq emms-player-base-format-list
+      '("ogg" "mp3" "wav" "mpg" "mpeg" "wmv" "wma"
+	"mov" "avi" "divx" "ogm" "ogv" "asf" "mkv"
+	"rm" "rmvb" "mp4" "flac" "vob" "m4a" "ape"
+	"flv" "webm" "aif" "dsf"))
+
+    (emms-player-set emms-player-mpv 'regex
+		     (apply #'emms-player-simple-regexp emms-player-base-format-list))
+  #+END_SRC
+  
   I also have this in my mpv configuration
 
      
      #+BEGIN_SRC sh :tangle no
        audio-display=no
      #+END_SRC
+     
 
-  
-  If someone has an elegant function to resize covers and display it inside emms-browser, I would be very happy if you email it to me.
+     Insert current track in buffer
 
-** Perspective
-
-    
-   #+BEGIN_SRC emacs-lisp  
-     (with-perspective "music"
-       (emms-smart-browse))
-   #+END_SRC
+     #+BEGIN_SRC emacs-lisp
+       (defun my/emms-insert-current-track ()
+	 (interactive)
+	 (insert
+	  (let* ((data (emms-playlist-current-selected-track))
+		 (artist (cdr (assoc 'info-artist data)))
+		 (title (cdr (assoc 'info-title data))))
+	    (concat title " By " artist))))
+     #+END_SRC
 ** mpv config
    
    mpv command line parameters
@@ -691,6 +684,8 @@
 									  1
 									0))))))
    #+END_SRC
+
+
 ** Covers
    
    I know this exists thanks to =Pierre Neidhardt= email apparently this was added in version 5.
@@ -709,6 +704,12 @@
    
   #+BEGIN_SRC emacs-lisp
     (setq org-log-done 'time)
+  #+END_SRC
+
+  Org directory
+
+  #+BEGIN_SRC emacs-lisp
+    (setq org-directory "~/Documents/org")
   #+END_SRC
   
   For better viewing math equations
@@ -766,7 +767,7 @@
   #+END_SRC
 
   
-**  org-trello sutff
+** org-trello sutff
    
     
    #+BEGIN_SRC emacs-lisp
@@ -940,14 +941,14 @@
    Capture passwords
 
    #+BEGIN_SRC emacs-lisp
-     (add-to-list 'org-capture-templates `("P" "Password" entry (file "~/passwords.org.gpg")
+     (add-to-list 'org-capture-templates `("P" "Password" entry (file ,(concat org-directory "/passwords.org.gpg"))
 		      "* %^{Title}\n  %^{URL}p %^{USERNAME}p %^{PASSWORD}p"))
    #+END_SRC
 
    Journal
 
    #+BEGIN_SRC emacs-lisp
-     (add-to-list 'org-capture-templates `("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
+     (add-to-list 'org-capture-templates `("j" "Journal" entry (file+olp+datetree ,(concat org-directory "/journal.org"))
 					   "* %?\nEntered on %U\n  %i\n  %a"))
    #+END_SRC
 
@@ -958,7 +959,7 @@
        (let ((name (read-string "Name: ")))
 	 (find-file (expand-file-name (format "%s-%s.org"
 					      (format-time-string "%Y-%m-%d")
-					      name) "~/emacs_site/blog/"))))
+					      name) "/part3/mo/emacs_site/blog/"))))
 
 
      (add-to-list 'org-capture-templates
@@ -970,8 +971,8 @@
 		     "#+TITLE: %^{prompt}\n#+DATE: %T\n\n%?"))
    #+END_SRC
 
-
    This might be deprecated in the future
+
    #+BEGIN_SRC emacs-lisp
      (require 'org-mu4e)
    #+END_SRC
@@ -1032,18 +1033,18 @@
 ** Latex export code stuff
     
    #+BEGIN_SRC emacs-lisp 
-     (setq ;; org-latex-listings 'minted
-           org-latex-packages-alist '(("" "minted"))
-           org-src-fontify-natively t
-           org-latex-pdf-process
-           '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-             "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+     (setq org-latex-listings 'minted
+	   org-latex-packages-alist '(("" "minted"))
+	   org-src-fontify-natively t
+	   org-latex-pdf-process
+	   '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
    #+END_SRC
    
 ** Org passwords
       
    #+BEGIN_SRC emacs-lisp
-     (setq org-passwords-file "~/passwords.org.gpg")
+     (setq org-passwords-file (concat org-directory "/passwords.org.gpg"))
    #+END_SRC
 
 ** Split code block
@@ -1274,6 +1275,9 @@
      (add-hook 'vue-mode-hook 'emmet-mode)
      (add-hook 'css-mode-hook 'emmet-mode)
      (add-hook 'web-mode-hook 'emmet-mode)
+
+     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
    #+END_SRC
 
 ** Elisp
@@ -1287,16 +1291,6 @@
                                        (paredit-mode 1)))
    #+END_SRC
 
-** Hylang
-   
-    
-   #+BEGIN_SRC emacs-lisp 
-     (require 'hy-mode)
-     (add-hook 'hy-mode-hook (lambda ()
-                               (show-paren-mode 1)
-                               (paredit-mode 1)
-                               (set (make-local-variable 'company-backends) '(company-hy))))
-   #+END_SRC
    
 * Pomodoro
 
@@ -1355,7 +1349,7 @@
    
   #+BEGIN_SRC emacs-lisp
     (require 'projectile)
-
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
     (projectile-mode 1)    
   #+END_SRC
 
@@ -1397,9 +1391,9 @@
    
   #+BEGIN_SRC emacs-lisp
     (require 'magit)
-    (require 'magithub)
+    ;; (require 'magithub)
     (global-set-key (kbd "C-x g") 'magit-status)
-    (magithub-feature-autoinject t)
+    ;; (magithub-feature-autoinject t)
     (put 'magit-clean 'disabled nil)
 
     (global-set-key (kbd "<f12>") 'menu-bar-mode)
@@ -1500,7 +1494,7 @@
   
 ** Switch to previous buffer
 
-   from bastov's blog
+   from bbatsov's blog
 
     
    #+BEGIN_SRC emacs-lisp 
@@ -1712,7 +1706,7 @@
 
 ** Tramp sudo edit
 
-   Use tramp to edit files with root, I got this from bbastov blog
+   Use tramp to edit files with root, I got this from bbatsov blog
 
     
    #+BEGIN_SRC emacs-lisp  
@@ -1857,13 +1851,10 @@
 ** Tea
 
    Timer code for brewing my tea.
-
-   You need the say program (it comes with GNUstep).
-
     
    #+BEGIN_SRC emacs-lisp  
      (require 'tea-time)
-     (setq tea-time-sound-command "espeak -vde+f5  \"Es ist teezeit mein Kapitän\"")
+     (setq tea-time-sound-command "espeak  \"Your tea is ready\"")
      (setq tea-time-sound t)
      (define-key global-map "\C-ct" 'tea-time)
    #+END_SRC
@@ -1915,11 +1906,12 @@
 	     (setq *last-theme* dark-theme)
 	     (disable-theme light-theme)
 	     (load-theme dark-theme)
-	     (set-frame-font "-misc-fixed-medium-r-normal--14-130-75-75-c-70-iso10646-1" nil t))
+	     (custom-set-faces
+	    '(default ((t (:height 113 :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :family "DejaVu Sans Mono"))))))
 	 (progn
 	   (disable-theme dark-theme)
 	   (custom-set-faces
-	    '(default ((t (:height 123 :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :family "DejaVu Sans Mono")))))
+	    '(default ((t (:height 113 :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :family "DejaVu Sans Mono")))))
 	   (setq *last-theme* light-theme)
 	   (load-theme light-theme))))
    #+END_SRC
@@ -1962,4 +1954,26 @@
      (defun get-current-time ()
        (interactive)
        (message (format-time-string "%H:%M %b %d %a")))
+
    #+END_SRC
+** Mitigate slow next-line
+
+   #+BEGIN_SRC emacs-lisp
+     (setq auto-window-vscroll nil)
+   #+END_SRC
+
+** Enable ggtags mode
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'c-mode-common-hook
+	       (lambda ()
+		 (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+		   (ggtags-mode 1))))
+   #+END_SRC
+** Pinentry
+
+   #+BEGIN_SRC emacs-lisp
+     (setq epa-pinentry-mode 'loopback)
+   #+END_SRC
+
+
