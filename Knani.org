@@ -47,14 +47,16 @@
    If the system has gnutls use ssl.
 
    #+BEGIN_SRC emacs-lisp
+     (require 'package)
+     (package-initialize)
      (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                         (not (gnutls-available-p))))
-            (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
+			 (not (gnutls-available-p))))
+	    (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
        (add-to-list 'package-archives (cons "melpa" url) t))
 
      (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                         (not (gnutls-available-p))))
-            (url (concat (if no-ssl "http" "https") "://orgmode.org/elpa/")))
+			 (not (gnutls-available-p))))
+	    (url (concat (if no-ssl "http" "https") "://orgmode.org/elpa/")))
        (add-to-list 'package-archives (cons "org" url) t))
 
    #+END_SRC
@@ -766,17 +768,7 @@
     (add-hook 'org-shiftright-final-hook 'windmove-right)
   #+END_SRC
 
-  
-** org-trello sutff
-   
-    
-   #+BEGIN_SRC emacs-lisp
-     (require 'org-trello)
-
-     (setq org-trello-files
-	   `(,(concat org-directory "/work.org")))
-   #+END_SRC
-   
+     
 ** C/C++
    
    For working with C/C++/D source code
@@ -903,7 +895,7 @@
     
    #+BEGIN_SRC emacs-lisp  
      (add-to-list 'org-capture-templates
-		  `("t" "Todo" entry (file ,(concat org-directory "/tasks.org"))
+		  `("t" "Todo" entry (file+headline ,(concat org-directory "/mylife.org.gpg") "Tasks")
 		    "* TODO %?\n  %i\n  %a"))
    #+END_SRC
    
