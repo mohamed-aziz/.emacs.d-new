@@ -280,3 +280,5 @@ The template may still contain \"%?\" for cursor positioning."
 (defun my/set-tags (&optional v1 v2)
      (interactive "P")
      (counsel-org-tag))
+
+(fset 'org-set-tags-command 'my/set-tags)
